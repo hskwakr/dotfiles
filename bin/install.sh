@@ -150,8 +150,15 @@ install_dotfiles() {
     git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
     log INFO "Cloned dotfiles repository"
   else
-    log INFO "Pulling latest changes from dotfiles repository"
-    git -C "$DOTFILES_DIR" pull origin main
+    if [ -d "$DOTFILES_DIR/.git" ]; then
+      log INFO "Pulling latest changes from dotfiles repository"
+      git -C "$DOTFILES_DIR" pull origin main
+    else
+      log WARNING "$DOTFILES_DIR is not a valid git repository. Re-cloning the repository."
+      rm -rf "$DOTFILES_DIR"
+      git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
+      log INFO "Re-cloned dotfiles repository"
+    fi
   fi
   for item in "$DOTFILES_DIR"/*; do
     local item_name=$(basename "$item")
