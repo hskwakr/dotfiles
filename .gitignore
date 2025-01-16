@@ -1,0 +1,24 @@
+# Ignore backup files
+backups/
+*.bak
+
+# Ignore log files
+logs/
+*.log
+
+# Ignore temporary or swap files
+*.tmp
+*.swp
+*.swo
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore editor-specific files
+*.vscode/
+*.idea/
+
+# Ignore other specific files
+*.lock
+*.pid
