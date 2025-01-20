@@ -57,7 +57,7 @@ log() {
   local message=$@
   local log_entry="$(date '+%Y-%m-%d %H:%M:%S') [$level] $message"
   echo "$log_entry"
-  if [ -f "$LOG_FILE" ]; then
+  if [ -f "$$LOG_DIR" ]; then
     echo "$log_entry" >> "$LOG_FILE"
   fi
 }
@@ -179,6 +179,7 @@ install_dotfiles() {
       log INFO "Ignored $item_name"
       continue
     fi
+    log DEBUG "Processing item: $item_name"
     if [ -d "$item" ]; then
       log INFO "Processing directory: $item"
       link_directory "$item" "$dest_item"
