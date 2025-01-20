@@ -57,7 +57,13 @@ log() {
   local message=$@
   local log_entry="$(date '+%Y-%m-%d %H:%M:%S') [$level] $message"
   echo "$log_entry"
-  if [ -f "$$LOG_DIR" ]; then
+  
+  # Log directory exists only if it is created
+  if [ -d "$LOG_DIR" ]; then
+    # Create log file if it doesn't exist
+    if [ ! -f "$LOG_FILE" ]; then
+      touch "$LOG_FILE"
+    fi
     echo "$log_entry" >> "$LOG_FILE"
   fi
 }
