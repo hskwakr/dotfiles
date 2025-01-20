@@ -147,14 +147,17 @@ check_command() {
 # Core Functions
 # -----------------------
 install_dotfiles() {
+  # Git clone dotfiles repository if it doesn't exist
   if [ ! -d "$DOTFILES_DIR" ]; then
     git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
     log INFO "Cloned dotfiles repository"
   else
+    # Pull latest changes from dotfiles repository if it exists
     if [ -d "$DOTFILES_DIR/.git" ]; then
       log INFO "Pulling latest changes from dotfiles repository"
       git -C "$DOTFILES_DIR" pull origin main
     else
+      # If it's not a valid git repository, re-clone the repository
       log WARNING "$DOTFILES_DIR is not a valid git repository. Re-cloning the repository."
       rm -rf "$DOTFILES_DIR"
       git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
@@ -162,11 +165,13 @@ install_dotfiles() {
     fi
   fi
 
-  if [ ! -d "$DOTFILES_DIR" ]; then
+  # Create backup and log directories if they don't exist
+  if [ -d "$DOTFILES_DIR" ]; then
     log INFO "Creating backup and log directories"
     mkdir -p "$BACKUP_DIR" "$LOG_DIR"
   fi
 
+  # Process each item in the dotfiles directory
   for item in "$DOTFILES_DIR"/*; do
     local item_name=$(basename "$item")
     local dest_item="$HOME/$item_name"
