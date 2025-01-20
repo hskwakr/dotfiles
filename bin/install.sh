@@ -172,7 +172,10 @@ install_dotfiles() {
   fi
 
   # Process each item in the dotfiles directory
-  for item in "$DOTFILES_DIR"/*; do
+  for item in "$DOTFILES_DIR"/.* "$DOTFILES_DIR"/*; do
+    # Skip . and .. directories
+    [ "$item" = "$DOTFILES_DIR/." ] || [ "$item" = "$DOTFILES_DIR/.." ] && continue
+    
     local item_name=$(basename "$item")
     local dest_item="$HOME/$item_name"
     if is_ignored "$item_name"; then
