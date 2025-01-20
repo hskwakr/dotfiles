@@ -45,10 +45,7 @@ LOG_BACKUP_COUNT=5
 # Maximum number of backups for individual files.
 BACKUP_MAX_COUNT=10
 
-# -----------------------
-# Initialization
-# -----------------------
-mkdir -p "$BACKUP_DIR" "$LOG_DIR"
+# Log file path
 LOG_FILE="$LOG_DIR/install.log"
 
 # -----------------------
@@ -58,7 +55,11 @@ log() {
   local level=$1
   shift
   local message=$@
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] $message" | tee -a "$LOG_FILE"
+  local log_entry="$(date '+%Y-%m-%d %H:%M:%S') [$level] $message"
+  echo "$log_entry"
+  if [ -f "$LOG_FILE" ]; then
+    echo "$log_entry" >> "$LOG_FILE"
+  fi
 }
 
 manage_log_file() {
@@ -160,6 +161,12 @@ install_dotfiles() {
       log INFO "Re-cloned dotfiles repository"
     fi
   fi
+
+  if [ ! -d "$DOTFILES_DIR" ]; then
+    log INFO "Creating backup and log directories"
+    mkdir -p "$BACKUP_DIR" "$LOG_DIR"
+  fi
+
   for item in "$DOTFILES_DIR"/*; do
     local item_name=$(basename "$item")
     local dest_item="$HOME/$item_name"
