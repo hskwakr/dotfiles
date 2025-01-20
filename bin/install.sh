@@ -107,11 +107,16 @@ backup_file() {
 
 backup_and_link() {
   local src=$1 dest=$2
-  if [ -e "$dest" ]; then
-    if [ -L "$dest" ] && [ "$(readlink "$dest")" != "$src" ]; then
-      log WARNING "Re-linking symbolic link: $dest"
-      rm "$dest"
-    elif [ ! -L "$dest" ]; then
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    if [ -L "$dest" ]; then
+      if [ "$(readlink "$dest")" = "$src" ]; then
+        log INFO "Symbolic link already exists and points to the correct location: $dest"
+        return
+      else
+        log WARNING "Re-linking symbolic link: $dest"
+        rm "$dest"
+      fi
+    else
       backup_file "$dest"
       rm -f "$dest"
     fi
@@ -188,7 +193,7 @@ install_dotfiles() {
       log INFO "Ignored $item_name"
       continue
     fi
-    log DEBUG "Processing item: $item_name"
+    # log DEBUG "Processing item: $item_name"
     if [ -d "$item" ]; then
       log INFO "Processing directory: $item"
       link_directory "$item" "$dest_item"
