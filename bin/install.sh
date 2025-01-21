@@ -36,6 +36,7 @@ GIT_REPO_URL="https://github.com/hskwakr/dotfiles.git"
 # Base directories for dotfiles management.
 DOTFILES_DIR="$HOME/dotfiles"
 BACKUP_DIR="$DOTFILES_DIR/backups"
+ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
 LOG_DIR="$DOTFILES_DIR/logs"
 
 # Maximum log file size (in bytes) and number of rotated logs to retain.
@@ -90,6 +91,19 @@ is_ignored() {
 backup_file() {
   local src=$1
   if [ -e "$src" ]; then
+    # Get relative path from HOME
+    local rel_path=${src#$HOME/}
+    
+    # Check if original backup exists
+    local original_backup="$ORIGINAL_BACKUP_DIR/$rel_path"
+    if [ ! -e "$original_backup" ]; then
+      # Create original backup with directory structure
+      mkdir -p "$(dirname "$original_backup")"
+      cp "$src" "$original_backup"
+      log INFO "Original backup created with directory structure: $original_backup"
+    fi
+
+    # Create regular backup
     local backup_name="$BACKUP_DIR/$(basename "$src")_$(date '+%Y%m%d_%H%M%S').bak"
     cp "$src" "$backup_name"
     log INFO "Backup created: $backup_name"
