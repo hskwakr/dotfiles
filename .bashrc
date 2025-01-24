@@ -23,3 +23,12 @@ if [ -d ~/.bashrc.d ]; then
     done
 fi
 unset rc
+
+if command -v fzf &> /dev/null; then
+    eval "$(fzf --bash)"
+fi
+
+if command -v starship &> /dev/null; then
+    eval "$(starship init bash)"
+fi
+
