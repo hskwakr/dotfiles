@@ -29,16 +29,32 @@ function fman() {
 
 # fbr - checkout git branch (including remote branches), sorted by most recent commit, limit 30 last branches
 fbr() {
+  git fetch --all
   local branches branch
   branches=$(git for-each-ref --count=30 --sort=-committerdate refs/{heads,remotes}/ --format="%(refname:short)") &&
   branch=$(echo "$branches" |
            fzf-tmux -w 80 +m) &&
   if [[ "$branch" =~ ^[^/]+/[^/]+ ]]; then
-    # For remote branches, create a local branch with the same name
-    local_branch=$(echo "$branch" | sed "s#remotes/[^/]*/##")
-    git checkout -b "$local_branch" "$branch"
+    git switch --track "$branch"
   else
-    # For local branches, just checkout
     git checkout $(echo "$branch" | sed "s/.* //")
   fi
+}
+
+# fbr-delete - delete git local branch with fzf
+fbr-delete() {
+  git branch | \
+  fzf --preview 'branch=$(echo {} | sed "s/.* //"); git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" $branch -10' \
+      --preview-window=right:70% | \
+  xargs git branch -d
+}
+
+# Select docker container to remove 
+function drm() {
+  docker ps -a | sed 1d | fzf -q "$1" --no-sort -m --tac | awk '{ print $1 }' | xargs -r docker rm
+}
+
+# Select a docker image or images to remove
+function drmi() {
+  docker images | sed 1d | fzf -q "$1" --no-sort -m --tac | awk '{ print $3 }' | xargs -r docker rmi
 }
