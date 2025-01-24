@@ -22,3 +22,16 @@ export FZF_CTRL_R_OPTS="
 export FZF_ALT_C_OPTS="
 --preview 'tree -L 3 -C {}'
 "
+
+function fman() {
+    man -k . | fzf -q "$1" --prompt='man> '  --preview $'echo {} | tr -d \'()\' | awk \'{printf "%s ", $2} {print $1}\' | xargs -r man' | tr -d '()' | awk '{printf "%s ", $2} {print $1}' | xargs -r man
+}
+
+# fbr - checkout git branch (including remote branches), sorted by most recent commit, limit 30 last branches
+fbr() {
+  local branches branch
+  branches=$(git for-each-ref --count=30 --sort=-committerdate refs/{heads,remotes}/ --format="%(refname:short)") &&
+  branch=$(echo "$branches" |
+           fzf-tmux -w 80 +m) &&
+  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+}
