@@ -33,5 +33,12 @@ fbr() {
   branches=$(git for-each-ref --count=30 --sort=-committerdate refs/{heads,remotes}/ --format="%(refname:short)") &&
   branch=$(echo "$branches" |
            fzf-tmux -w 80 +m) &&
-  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+  if [[ "$branch" =~ ^[^/]+/[^/]+ ]]; then
+    # For remote branches, create a local branch with the same name
+    local_branch=$(echo "$branch" | sed "s#remotes/[^/]*/##")
+    git checkout -b "$local_branch" "$branch"
+  else
+    # For local branches, just checkout
+    git checkout $(echo "$branch" | sed "s/.* //")
+  fi
 }
