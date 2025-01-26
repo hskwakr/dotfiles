@@ -5,6 +5,7 @@
 	lol = log --graph --decorate --pretty=oneline --all --abbrev-commit
 [init]
 	defaultBranch = main
-[credential]
-	helper = /usr/local/bin/git-credential-manager
-	credentialStore = gpg
+[credential "https://github.com"]
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = !/usr/bin/gh auth git-credential
