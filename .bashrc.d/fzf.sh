@@ -58,3 +58,46 @@ function drm() {
 function drmi() {
   docker images | sed 1d | fzf -q "$1" --no-sort -m --tac | awk '{ print $3 }' | xargs -r docker rmi
 }
+
+# fdl: Interactively select a running Docker container using fzf,
+# and tail its logs in follow mode.
+fdl() {
+  # Note: This function is intended for interactive shells (.bashrc).
+
+  # Check that required commands exist.
+  for cmd in docker fzf; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      printf "fdl: Error: Required command '%s' is not installed.\n" "$cmd" >&2
+      return 1
+    fi
+  done
+
+  # Declare local variables to avoid polluting the global namespace.
+  local container_selection container_id
+
+  # Get the list of running containers in the format:
+  # "CONTAINER_ID: IMAGE (NAME)"
+  # Pipe the output to fzf for interactive selection.
+  container_selection=$(
+    docker ps --format '{{.ID}}: {{.Image}} ({{.Names}})' 2>/dev/null |
+      fzf --prompt="Select container > " \
+          --ansi \
+          --preview='docker logs --tail 100 {1}' 2>/dev/null
+  )
+
+  # If nothing was selected (e.g., user pressed ESC), exit early.
+  if [[ -z "$container_selection" ]]; then
+    printf "fdl: No container selected.\n" >&2
+    return 1
+  fi
+
+  # Extract the container ID from the selected line.
+  # The expected format is "CONTAINER_ID: IMAGE (NAME)".
+  container_id=$(printf "%s" "$container_selection" | cut -d':' -f1)
+
+  # Provide user feedback.
+  printf "fdl: Tailing logs for container %s\n" "$container_id"
+
+  # Tail the logs of the selected container in follow mode.
+  docker logs -f "$container_id"
+}
