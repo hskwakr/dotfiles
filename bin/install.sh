@@ -108,7 +108,11 @@ backup_file() {
     cp "$src" "$backup_name"
     log INFO "Backup created: $backup_name"
 
-    local backups=("$BACKUP_DIR/$(basename "$src")_*.bak")
+    # Expand the backup glob to an array of existing files
+    shopt -s nullglob
+    local backups=("$BACKUP_DIR"/$(basename "$src")_*.bak)
+    shopt -u nullglob
+
     if [ "${#backups[@]}" -gt "$BACKUP_MAX_COUNT" ]; then
       local excess_count=$((${#backups[@]} - BACKUP_MAX_COUNT))
       for old_backup in $(ls -t "${backups[@]}" | tail -n $excess_count); do
