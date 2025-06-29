@@ -172,6 +172,65 @@ check_command() {
   fi
 }
 
+# Detect the operating system and distinguish WSL environments
+detect_os() {
+  local uname_out
+  uname_out="$(uname -s)"
+
+  case "$uname_out" in
+    Darwin*)
+      echo "macOS"
+      return
+      ;;
+    CYGWIN*|MINGW*|MSYS*)
+      echo "Windows"
+      return
+      ;;
+    Linux*)
+      local is_wsl="false"
+      if grep -qi microsoft /proc/version 2>/dev/null || grep -qi wsl /proc/sys/kernel/osrelease 2>/dev/null; then
+        is_wsl="true"
+      fi
+
+      if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        case "$ID" in
+          ubuntu)
+            if [ "$is_wsl" = "true" ]; then
+              echo "wsl-ubuntu"
+            else
+              echo "ubuntu"
+            fi
+            ;;
+          fedora)
+            if [ "$is_wsl" = "true" ]; then
+              echo "wsl-fedora"
+            else
+              echo "fedora"
+            fi
+            ;;
+          *)
+            if [ "$is_wsl" = "true" ]; then
+              echo "wsl-$ID"
+            else
+              echo "$ID"
+            fi
+            ;;
+        esac
+      else
+        if [ "$is_wsl" = "true" ]; then
+          echo "wsl-linux"
+        else
+          echo "linux"
+        fi
+      fi
+      return
+      ;;
+  esac
+
+  echo "$uname_out"
+}
+
 # -----------------------
 # Core Functions
 # -----------------------
@@ -249,6 +308,9 @@ main() {
   manage_log_file "$LOG_FILE"
 
   log INFO "Starting installation"
+  local os_name
+  os_name=$(detect_os)
+  log INFO "Detected OS: $os_name"
   check_command "git"
   install_dotfiles
   setup_shell "${1:-$SHELL}"
