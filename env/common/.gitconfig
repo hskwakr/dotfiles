@@ -1,0 +1,11 @@
+[user]
+	name = hskwakr
+	email = 33633391+hskwakr@users.noreply.github.com
+[alias]
+	lol = log --graph --decorate --pretty=oneline --all --abbrev-commit
+[init]
+	defaultBranch = main
+[credential "https://github.com"]
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = !/usr/bin/gh auth git-credential
