@@ -28,6 +28,7 @@ ignore_list=(
   "backups"
   "logs"
   "bin"
+  "env"
 )
 
 # URL of the git repository containing the dotfiles.
