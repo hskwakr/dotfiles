@@ -235,7 +235,7 @@ detect_os() {
 # -----------------------
 # Core Functions
 # -----------------------
-install_dotfiles() {
+prepare_repo() {
   # Git clone dotfiles repository if it doesn't exist
   if [ ! -d "$DOTFILES_DIR" ]; then
     git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
@@ -259,19 +259,20 @@ install_dotfiles() {
     log INFO "Creating backup and log directories"
     mkdir -p "$BACKUP_DIR" "$LOG_DIR"
   fi
+}
 
+install_root_dotfiles() {
   # Process each item in the dotfiles directory
   for item in "$DOTFILES_DIR"/.* "$DOTFILES_DIR"/*; do
     # Skip . and .. directories
     [ "$item" = "$DOTFILES_DIR/." ] || [ "$item" = "$DOTFILES_DIR/.." ] && continue
-    
+
     local item_name=$(basename "$item")
     local dest_item="$HOME/$item_name"
     if is_ignored "$item_name"; then
       log INFO "Ignored $item_name"
       continue
     fi
-    # log DEBUG "Processing item: $item_name"
     if [ -d "$item" ]; then
       log INFO "Processing directory: $item"
       link_directory "$item" "$dest_item"
@@ -282,6 +283,21 @@ install_dotfiles() {
       log WARNING "Skipped unusual item: $item"
     fi
   done
+}
+
+install_dotfiles() {
+  prepare_repo
+  install_root_dotfiles
+}
+
+install_env_common() {
+  local common_dir="$DOTFILES_DIR/env/common"
+  if [ -d "$common_dir" ]; then
+    log INFO "Linking common environment configs from $common_dir"
+    link_directory "$common_dir" "$HOME"
+  else
+    log WARNING "Common environment directory not found: $common_dir"
+  fi
 }
 
 setup_shell() {
@@ -313,7 +329,8 @@ main() {
   os_name=$(detect_os)
   log INFO "Detected OS: $os_name"
   check_command "git"
-  install_dotfiles
+  prepare_repo
+  install_env_common
   setup_shell "${1:-$SHELL}"
   log INFO "Installation completed"
 }
