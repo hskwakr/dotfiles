@@ -1,10 +1,10 @@
 # dotfiles
 
-# Usage
-I recommend testing with playgrounds before using this repository.
+Configuration files for various development environments.
+See [doc/index.md](doc/index.md) for detailed documentation and policies.
 
-### Install
-Download this repo and make symlinks for dotfiles.
+## Quick Install
+Download this repo and create symlinks for the dotfiles:
 ```sh
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/hskwakr/dotfiles/main/bin/install.sh)"
 ```
