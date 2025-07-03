@@ -1,20 +1,21 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Show list of dotfiles
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/helpers.sh"
+
 DOT_DIR="${HOME}/dotfiles"
 
 if [ -d "${DOT_DIR}" ]; then
   cd "${DOT_DIR}" || exit 1
-  echo "Show list of available dotfiles in dotfiles repository..."
+  log INFO "Show list of available dotfiles in dotfiles repository..."
   for f in .??*; do
-    [ "$f" = ".git" ] && continue
-    [ "$f" = ".github" ] && continue
-    [ "$f" = ".gitignore" ] && continue
-    [ "$f" = ".gitattributes" ] && continue
-
+    if is_ignored "$f"; then
+      continue
+    fi
     echo "${HOME}/$f"
   done
 else
-  echo "dotfiles does not exist"
+  log ERROR "dotfiles does not exist"
   exit 1
 fi
