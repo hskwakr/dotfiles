@@ -36,9 +36,13 @@ GIT_REPO_URL="https://github.com/hskwakr/dotfiles.git"
 
 # Base directories for dotfiles management.
 DOTFILES_DIR="$HOME/dotfiles"
-BACKUP_DIR="$DOTFILES_DIR/backups"
-ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
-LOG_DIR="$DOTFILES_DIR/logs"
+SHELL_PATH="$SHELL"
+
+# Directories derived from DOTFILES_DIR. These values are updated after
+# option parsing to reflect any custom location.
+BACKUP_DIR=""
+ORIGINAL_BACKUP_DIR=""
+LOG_DIR=""
 
 # Maximum log file size (in bytes) and number of rotated logs to retain.
 LOG_MAX_SIZE=1048576 # 1MB
@@ -47,8 +51,8 @@ LOG_BACKUP_COUNT=5
 # Maximum number of backups for individual files.
 BACKUP_MAX_COUNT=10
 
-# Log file path
-LOG_FILE="$LOG_DIR/install.log"
+# Log file path (computed after option parsing)
+LOG_FILE=""
 
 # -----------------------
 # Utility Functions
@@ -236,26 +240,28 @@ detect_os() {
 # Core Functions
 # -----------------------
 prepare_repo() {
+  local repo_dir=$1
+
   # Git clone dotfiles repository if it doesn't exist
-  if [ ! -d "$DOTFILES_DIR" ]; then
-    git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
+  if [ ! -d "$repo_dir" ]; then
+    git clone "$GIT_REPO_URL" "$repo_dir"
     log INFO "Cloned dotfiles repository"
   else
     # Pull latest changes from dotfiles repository if it exists
-    if [ -d "$DOTFILES_DIR/.git" ]; then
+    if [ -d "$repo_dir/.git" ]; then
       log INFO "Pulling latest changes from dotfiles repository"
-      git -C "$DOTFILES_DIR" pull origin main
+      git -C "$repo_dir" pull origin main
     else
       # If it's not a valid git repository, re-clone the repository
-      log WARNING "$DOTFILES_DIR is not a valid git repository. Re-cloning the repository."
-      rm -rf "$DOTFILES_DIR"
-      git clone "$GIT_REPO_URL" "$DOTFILES_DIR"
+      log WARNING "$repo_dir is not a valid git repository. Re-cloning the repository."
+      rm -rf "$repo_dir"
+      git clone "$GIT_REPO_URL" "$repo_dir"
       log INFO "Re-cloned dotfiles repository"
     fi
   fi
 
   # Create backup and log directories if they don't exist
-  if [ -d "$DOTFILES_DIR" ]; then
+  if [ -d "$repo_dir" ]; then
     log INFO "Creating backup and log directories"
     mkdir -p "$BACKUP_DIR" "$LOG_DIR"
   fi
@@ -286,7 +292,8 @@ install_root_dotfiles() {
 }
 
 install_dotfiles() {
-  prepare_repo
+  local repo_dir=$1
+  prepare_repo "$repo_dir"
   install_root_dotfiles
 }
 
@@ -322,6 +329,9 @@ setup_shell() {
 # Main Process
 # -----------------------
 main() {
+  local repo_dir=$1
+  local shell_path=$2
+
   manage_log_file "$LOG_FILE"
 
   log INFO "Starting installation"
@@ -329,10 +339,37 @@ main() {
   os_name=$(detect_os)
   log INFO "Detected OS: $os_name"
   check_command "git"
-  prepare_repo
+  prepare_repo "$repo_dir"
   install_env_common
-  setup_shell "${1:-$SHELL}"
+  setup_shell "$shell_path"
   log INFO "Installation completed"
 }
 
-main "$@"
+# Parse command line options
+while getopts "d:s:h" opt; do
+  case "$opt" in
+    d)
+      DOTFILES_DIR="$OPTARG"
+      ;;
+    s)
+      SHELL_PATH="$OPTARG"
+      ;;
+    h)
+      echo "Usage: $0 [-d dotfiles_directory] [-s shell_path]"
+      exit 0
+      ;;
+    \?)
+      echo "Usage: $0 [-d dotfiles_directory] [-s shell_path]" >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+# Update paths based on chosen dotfiles directory
+BACKUP_DIR="$DOTFILES_DIR/backups"
+ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
+LOG_DIR="$DOTFILES_DIR/logs"
+LOG_FILE="$LOG_DIR/install.log"
+
+main "$DOTFILES_DIR" "$SHELL_PATH"
