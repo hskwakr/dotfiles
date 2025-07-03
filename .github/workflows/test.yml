@@ -1,0 +1,14 @@
+name: BATS Tests
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run BATS tests
+        run: |
+          cd test
+          ./run_tests.sh *.bats
