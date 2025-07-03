@@ -4,6 +4,7 @@
 
 - [agents/overview.md](agents/overview.md): スクリプト方針の概要
 - [agents/scripts.md](agents/scripts.md): インストール・クリーンアップスクリプトの詳細
+- [agents/scripts.md#os-detection](agents/scripts.md#os-detection): OS 判定と環境別ファイルの扱い
 - [projects/guideline.md](projects/guideline.md): プロジェクト向けシェルスクリプトの指針
 - [../env](../env): 環境別の設定
 - [projects/dotfiles.md](projects/dotfiles.md): dotfiles の概要とバックアップ・復元方法

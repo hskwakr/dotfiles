@@ -10,6 +10,14 @@
 - `-d` オプションで dotfiles を配置するディレクトリを指定できます。
 - `-s` オプションでインストール後に変更するログインシェルを指定できます。
 
+### OS 判定と環境別ファイルの選択 <a id="os-detection"></a>
+
+`install.sh` では実行環境を検出するために `detect_os` 関数を使用します。`uname` と `/etc/os-release` を参照し、WSL 上の Ubuntu であれば `wsl-ubuntu`、Fedora であれば `fedora` のように識別結果を返します。
+
+現在は `env/common/` のみを自動でリンクしていますが、将来的には `detect_os` の返り値に基づき `env/<OS>/` ディレクトリも自動的に処理する予定です。たとえば `wsl-ubuntu` という結果であれば `env/wsl-ubuntu/` を優先して参照し、存在しなければ `env/wsl/` などより一般的なディレクトリを利用するといった挙動を想定しています。
+
+この仕組みにより Fedora 環境では `env/fedora/`、WSL 上の Ubuntu では `env/wsl-ubuntu/` を適用するといった柔軟な構成を目指しています。
+
 ## `clean.sh`
 
 - `install.sh` が作成したバックアップやログを整理します。`env/` 配下からリンクされたファイルのバックアップも対象です。
