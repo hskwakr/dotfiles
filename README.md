@@ -15,3 +15,15 @@ Download this repo and create symlinks for the dotfiles:
 ```sh
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/hskwakr/dotfiles/main/bin/install.sh)"
 ```
+
+## Testing with Docker
+The repository provides basic [BATS](https://github.com/bats-core/bats-core) tests.
+Run them inside a container with the helper script:
+
+```sh
+cd test
+./run_tests.sh sample.bats
+```
+
+This script builds a Docker image based on `bats/bats:latest` and executes the given
+`*.bats` files. See [doc/projects/testing.md](doc/projects/testing.md) for details.
