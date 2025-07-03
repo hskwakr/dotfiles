@@ -19,3 +19,23 @@ AGENTS.md と `doc/` 以下のドキュメントはすべて日本語で記述�
   - `wsl/`    - Windows Subsystem for Linux 用の設定
 - `README.md` - リポジトリの概要や使用方法を記載したファイル
 - `LICENSE` - ライセンス情報
+
+## テストの実行について
+
+詳細な手順は [doc/projects/testing.md](doc/projects/testing.md) を参照してください。
+基本的には Docker を利用した `test/run_tests.sh` を実行しますが、Docker が利用で
+きない環境では BATS を直接インストールしてテストできます。
+
+```sh
+# Debian/Ubuntu
+sudo apt-get install bats
+# macOS
+brew install bats-core
+# ソースから
+git clone https://github.com/bats-core/bats-core
+./bats-core/install.sh /usr/local
+
+bats test/sample.bats
+```
+
+この方法でも同じテストを実行できます。
