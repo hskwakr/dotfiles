@@ -2,6 +2,7 @@
 
 このリポジトリのスクリプトは以下の方針に従ってください。
 詳細なポリシーについては [doc/index.md](doc/index.md) を参照してください。
+dotfiles プロジェクト全体の概要は [doc/projects/dotfiles.md](doc/projects/dotfiles.md) にまとめています。
 AGENTS.md と `doc/` 以下のドキュメントはすべて日本語で記述されています。
 
 - 追加のシェルを要求せず、標準的な Linux シェルで実行できるようにします。
