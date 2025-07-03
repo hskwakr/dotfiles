@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # clean.sh - A script to clean up after dotfiles installation
 # Usage:
 #   ./clean.sh [-h] [-r] [-b] [-l] [-s]
@@ -9,7 +9,10 @@
 #     -s: clean broken symlinks
 #   No options: execute all operations
 
-set -e
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/helpers.sh"
 
 # Configuration Variables
 # -----------------------
@@ -17,16 +20,6 @@ DOTFILES_DIR="$HOME/dotfiles"
 BACKUP_DIR="$DOTFILES_DIR/backups"
 ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
 LOG_DIR="$DOTFILES_DIR/logs"
-
-# -----------------------
-# Utility Functions
-# -----------------------
-log() {
-  local level=$1
-  shift
-  local message=$@
-  echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] $message"
-}
 
 print_usage() {
   echo "Description:"
@@ -174,3 +167,4 @@ main() {
 }
 
 main "$@"
+
