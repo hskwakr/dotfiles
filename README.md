@@ -28,6 +28,8 @@ cd test
 This script builds a Docker image based on `bats/bats:latest` and executes the given
 `*.bats` files. The image copies the repository at build time so no volume mount is needed.
 See [doc/projects/testing.md](doc/projects/testing.md) for details.
+For a TDD-style workflow that writes failing tests first, see
+[doc/projects/tdd.md](doc/projects/tdd.md).
 
 ### Continuous Integration
 BATS tests run automatically on each pull request via GitHub Actions. The workflow is defined in `.github/workflows/test.yml`.
