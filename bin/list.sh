@@ -15,6 +15,6 @@ if [ -d "${DOT_DIR}" ]; then
     echo "${HOME}/$f"
   done
 else
-  echo "dotfiles does not exists"
+  echo "dotfiles does not exist"
   exit 1
 fi
