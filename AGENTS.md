@@ -1,15 +1,10 @@
 # AGENTS
 
-このリポジトリのスクリプトは以下の方針に従ってください。
+このリポジトリのスクリプト方針は [doc/agents/overview.md](doc/agents/overview.md) にまとめています。
 詳細なポリシーについては [doc/index.md](doc/index.md) を参照してください。
 dotfiles プロジェクト全体の概要は [doc/projects/dotfiles.md](doc/projects/dotfiles.md) にまとめています。
 シェルスクリプトの具体的な推奨設定は [doc/projects/guideline.md](doc/projects/guideline.md) で解説しています。
 AGENTS.md と `doc/` 以下のドキュメントはすべて日本語で記述されています。
-
-- 追加のシェルを要求せず、標準的な Linux シェルで実行できるようにします。
-- `git`, `cp`, `ln` など必要なコマンドの有無を確認し、存在しなければ安全に終了します。
-- `bin/install.sh` は `bash -c "$(curl -fsSL ...)"` の形式で実行することを想定しています。
-- スクリプトはモジュール化し、破壊的な変更を避けます。
 
 ## フォルダ構成
 
