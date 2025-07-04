@@ -1,10 +1,7 @@
 FROM bats/bats:latest
 
 # Install tools required by tests
-RUN apt-get update \
-    && apt-get install -y git \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache git
 
 WORKDIR /work
 COPY . /work
