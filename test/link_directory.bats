@@ -1,0 +1,40 @@
+#!/usr/bin/env bats
+
+setup() {
+  HOME_DIR="$BATS_TMPDIR/home"
+  DOTFILES_DIR="$BATS_TMPDIR/repo"
+  mkdir -p "$HOME_DIR" "$DOTFILES_DIR"
+  export HOME="$HOME_DIR"
+
+  BACKUP_DIR="$DOTFILES_DIR/backups"
+  ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
+  LOG_DIR="$DOTFILES_DIR/logs"
+  LOG_FILE="$LOG_DIR/install.log"
+  LOG_MAX_SIZE=1024
+  LOG_BACKUP_COUNT=3
+  BACKUP_MAX_COUNT=5
+  ignore_list=("ignoreme")
+
+  source "$BATS_TEST_DIRNAME/lib/install_functions.sh"
+  log() { :; }
+}
+
+teardown() {
+  rm -rf "$HOME_DIR" "$DOTFILES_DIR"
+}
+
+@test "recursively links directory and respects ignore list" {
+  mkdir -p "$DOTFILES_DIR/src/sub"
+  echo "a" > "$DOTFILES_DIR/src/file1"
+  echo "b" > "$DOTFILES_DIR/src/sub/file2"
+  echo "c" > "$DOTFILES_DIR/src/ignoreme"
+
+  run link_directory "$DOTFILES_DIR/src" "$HOME/dest"
+  [ "$status" -eq 0 ]
+
+  [ -L "$HOME/dest/file1" ]
+  [ "$(readlink "$HOME/dest/file1")" = "$DOTFILES_DIR/src/file1" ]
+  [ -L "$HOME/dest/sub/file2" ]
+  [ "$(readlink "$HOME/dest/sub/file2")" = "$DOTFILES_DIR/src/sub/file2" ]
+  [ ! -e "$HOME/dest/ignoreme" ]
+}
