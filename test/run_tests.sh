@@ -17,12 +17,18 @@ docker build -f "$SCRIPT_DIR/Dockerfile" -t dotfiles-bats "$REPO_ROOT"
 
 # Ensure BATS receives paths relative to the repository root
 ARGS=()
-for path in "$@"; do
-  if [[ "$path" == test/* ]]; then
-    ARGS+=("$path")
-  else
-    ARGS+=("test/$path")
-  fi
-done
+if [[ $# -eq 0 ]]; then
+  pushd "$REPO_ROOT" >/dev/null
+  mapfile -t ARGS < <(find test -name '*.bats' | sort)
+  popd >/dev/null
+else
+  for path in "$@"; do
+    if [[ "$path" == test/* ]]; then
+      ARGS+=("$path")
+    else
+      ARGS+=("test/$path")
+    fi
+  done
+fi
 
 docker run --rm dotfiles-bats "${ARGS[@]}"
