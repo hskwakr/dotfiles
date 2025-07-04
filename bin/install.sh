@@ -58,6 +58,8 @@ LOG_FILE=""
 # -----------------------
 # Utility Functions
 # -----------------------
+
+# Print a timestamped log message and append it to the log file if available
 log() {
   local level=$1
   shift
@@ -75,6 +77,7 @@ log() {
   fi
 }
 
+# Rotate the log file when it exceeds the size limit
 manage_log_file() {
   local log_file=$1
   if [ -f "$log_file" ] && [ "$(stat --format=%s "$log_file")" -ge "$LOG_MAX_SIZE" ]; then
@@ -86,6 +89,7 @@ manage_log_file() {
   fi
 }
 
+# Return 0 if the given path matches an ignored name
 is_ignored() {
   local item_name=$1
   for ignored in "${ignore_list[@]}"; do
@@ -94,6 +98,7 @@ is_ignored() {
   return 1
 }
 
+# Create a timestamped backup of the file and limit the number kept
 backup_file() {
   local src=$1
   if [ -e "$src" ]; then
@@ -129,6 +134,7 @@ backup_file() {
   fi
 }
 
+# Backup the destination then link the source file
 backup_and_link() {
   local src=$1 dest=$2
   if [ -e "$dest" ] || [ -L "$dest" ]; then
@@ -149,6 +155,7 @@ backup_and_link() {
   log INFO "Linked $src to $dest"
 }
 
+# Recursively link all items from the source directory into the destination
 link_directory() {
   local src_dir=$1 dest_dir=$2
   mkdir -p "$dest_dir"
@@ -171,6 +178,7 @@ link_directory() {
   done
 }
 
+# Exit if the specified command is not available in PATH
 check_command() {
   if ! command -v "$1" &> /dev/null; then
     log ERROR "$1 is required but not installed."
@@ -179,6 +187,7 @@ check_command() {
 }
 
 # Detect the operating system and distinguish WSL environments
+# Outputs a lowercase identifier such as "fedora" or "wsl-ubuntu"
 detect_os() {
   local uname_out
   uname_out="$(uname -s)"
@@ -240,6 +249,7 @@ detect_os() {
 # -----------------------
 # Core Functions
 # -----------------------
+# Clone the repository if needed and create backup/log directories
 prepare_repo() {
   local repo_dir=$1
 
@@ -268,6 +278,7 @@ prepare_repo() {
   fi
 }
 
+# Link dotfiles from the repository root into the home directory
 install_root_dotfiles() {
   # Process each item in the dotfiles directory
   for item in "$DOTFILES_DIR"/.* "$DOTFILES_DIR"/*; do
@@ -292,12 +303,14 @@ install_root_dotfiles() {
   done
 }
 
+# Wrapper to prepare the repository and link dotfiles
 install_dotfiles() {
   local repo_dir=$1
   prepare_repo "$repo_dir"
   install_root_dotfiles
 }
 
+# Link files located under env/common into the user's home
 install_env_common() {
   local common_dir="$DOTFILES_DIR/env/common"
   if [ -d "$common_dir" ]; then
@@ -308,6 +321,7 @@ install_env_common() {
   fi
 }
 
+# Change the default shell if the given path is valid and different
 setup_shell() {
   local shell_path=${1:-$SHELL}
   if [ "$shell_path" == "$SHELL" ]; then
@@ -329,6 +343,7 @@ setup_shell() {
 # -----------------------
 # Main Process
 # -----------------------
+# Execute all installation steps with logging
 main() {
   local repo_dir=$1
   local shell_path=$2
