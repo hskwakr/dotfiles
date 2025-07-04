@@ -26,15 +26,9 @@ AGENTS.md と `doc/` 以下のドキュメントはすべて日本語で記述�
 基本的には Docker を利用した `test/run_tests.sh` を実行しますが、Docker が利用で
 きない環境では BATS を直接インストールしてテストできます。
 
-```sh
-# Debian/Ubuntu
-sudo apt-get install bats
-# macOS
-brew install bats-core
-# ソースから
-git clone https://github.com/bats-core/bats-core
-./bats-core/install.sh /usr/local
 
+BATS をローカルにインストールする場合は、[公式サイト](https://github.com/bats-core/bats-core) の手順に従ってください。
+```sh
 bats test/sample.bats
 ```
 

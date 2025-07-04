@@ -17,7 +17,7 @@
 Docker イメージは `bats/bats:latest` をベースにしており、ビルド時にリポジトリ全体を `/work` にコピーします。そのため、実行時にボリュームマウントを指定する必要はありません。
 
 ### ローカルに BATS をインストールする場合
-1. Debian 系の場合は `apt-get install bats`、macOS なら `brew install bats-core` を実行します。
+1. BATS のインストール方法については [公式サイト](https://github.com/bats-core/bats-core) を参照してください。
 2. その後、リポジトリ直下で次のように実行します。
    ```sh
    bats test/sample.bats
