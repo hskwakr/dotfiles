@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Install BATS
+        run: sudo apt-get update && sudo apt-get install -y bats
       - name: Run BATS tests
-        run: |
-          cd test
-          ./run_tests.sh *.bats
+        run: bats test/*.bats

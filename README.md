@@ -16,18 +16,20 @@ Download this repo and create symlinks for the dotfiles:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/hskwakr/dotfiles/main/bin/install.sh)"
 ```
 
-## Testing with Docker
+## Testing
 The repository provides basic [BATS](https://github.com/bats-core/bats-core) tests.
-Run them inside a container with the helper script:
+You can run them locally using the Docker helper script or by installing BATS directly.
 
 ```sh
+# Using Docker
 cd test
 ./run_tests.sh sample.bats
+
+# Or with a local BATS installation
+bats test/sample.bats
 ```
 
-This script builds a Docker image based on `bats/bats:latest` and executes the given
-`*.bats` files. The image copies the repository at build time so no volume mount is needed.
-See [doc/projects/testing.md](doc/projects/testing.md) for details.
+See [doc/projects/testing.md](doc/projects/testing.md) for details on both approaches.
 For a TDD-style workflow that writes failing tests first, see
 [doc/projects/tdd.md](doc/projects/tdd.md).
 
