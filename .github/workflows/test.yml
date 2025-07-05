@@ -13,4 +13,4 @@ jobs:
       - name: Run BATS tests
         env:
           TERM: xterm
-        run: bats --formatter pretty --recursive test
+        run: script -q -c "bats --formatter pretty --recursive test" /dev/null
