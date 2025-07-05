@@ -58,3 +58,14 @@ teardown() {
   [ -L "$HOME/file" ]
   [ "$(readlink "$HOME/file")" = "$DOTFILES_DIR/srcfile" ]
 }
+
+@test "no backup when symlink already correct" {
+  echo "src" > "$DOTFILES_DIR/srcfile"
+  ln -s "$DOTFILES_DIR/srcfile" "$HOME/file"
+  run backup_and_link "$DOTFILES_DIR/srcfile" "$HOME/file"
+  [ "$status" -eq 0 ]
+  shopt -s nullglob
+  backups=("$BACKUP_DIR"/file_*.bak)
+  shopt -u nullglob
+  [ "${#backups[@]}" -eq 0 ]
+}
