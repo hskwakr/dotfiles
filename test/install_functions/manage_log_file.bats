@@ -40,3 +40,17 @@ teardown() {
   [ -f "$LOG_FILE.2" ]
   [ ! -f "$LOG_FILE.3" ]
 }
+
+@test "shifts existing backups when rotated" {
+  LOG_BACKUP_COUNT=3
+  printf 'current_log' > "$LOG_FILE"
+  printf 'first_backup' > "$LOG_FILE.1"
+  printf 'second_backup' > "$LOG_FILE.2"
+  run manage_log_file "$LOG_FILE"
+  [ "$status" -eq 0 ]
+  grep -q 'second_backup' "$LOG_FILE.3"
+  grep -q 'first_backup' "$LOG_FILE.2"
+  grep -q 'current_log' "$LOG_FILE.1"
+  [ ! -f "$LOG_FILE.4" ]
+  grep -q 'Log rotated' "$LOG_FILE"
+}
