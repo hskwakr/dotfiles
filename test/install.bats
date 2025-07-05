@@ -37,3 +37,14 @@ teardown() {
   shopt -u nullglob
   [ "${#backups[@]}" -ge 1 ]
 }
+
+@test "install.sh does not link root-level dotfiles" {
+  echo "keep" > "$HOME/.bashrc"
+
+  run bash "$BATS_TEST_DIRNAME/../bin/install.sh" -d "$REPO"
+  [ "$status" -eq 0 ]
+
+  [ ! -L "$HOME/.bashrc" ]
+  grep -q "keep" "$HOME/.bashrc"
+  [ ! -e "$REPO/backups/original/.bashrc" ]
+}
