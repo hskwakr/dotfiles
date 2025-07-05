@@ -41,3 +41,21 @@ teardown() {
   [ "$(readlink "$HOME/dest/sub/file2")" = "$DOTFILES_DIR/src/sub/file2" ]
   [ ! -e "$HOME/dest/ignoreme" ]
 }
+
+@test "backs up existing destination file" {
+  mkdir -p "$DOTFILES_DIR/src"
+  echo "new" > "$DOTFILES_DIR/src/file1"
+  mkdir -p "$HOME/dest"
+  echo "old" > "$HOME/dest/file1"
+  mkdir -p "$BACKUP_DIR" "$ORIGINAL_BACKUP_DIR"
+
+  run link_directory "$DOTFILES_DIR/src" "$HOME/dest"
+  [ "$status" -eq 0 ]
+
+  [ -L "$HOME/dest/file1" ]
+  [ "$(readlink "$HOME/dest/file1")" = "$DOTFILES_DIR/src/file1" ]
+  shopt -s nullglob
+  backups=("$BACKUP_DIR"/file1_*.bak)
+  shopt -u nullglob
+  [ "${#backups[@]}" -ge 1 ]
+}
