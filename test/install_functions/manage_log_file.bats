@@ -30,6 +30,16 @@ teardown() {
   grep -q 'Log rotated' "$LOG_FILE"
 }
 
+@test "does nothing when log file absent" {
+  run manage_log_file "$LOG_FILE"
+  [ "$status" -eq 0 ]
+  [ ! -e "$LOG_FILE" ]
+  shopt -s nullglob
+  logs=("$LOG_DIR"/*)
+  shopt -u nullglob
+  [ "${#logs[@]}" -eq 0 ]
+}
+
 @test "keeps limited number of backups" {
   printf 'abc' > "$LOG_FILE"
   printf 'old1' > "$LOG_FILE.1"
