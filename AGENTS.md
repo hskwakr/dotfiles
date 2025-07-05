@@ -26,10 +26,14 @@ AGENTS.md と `doc/` 以下のドキュメントはすべて日本語で記述�
 基本的には Docker を利用した `test/run_tests.sh` を実行しますが、Docker が利用で
 きない環境では BATS を直接インストールしてテストできます。
 
+BATS を実行する際は `--formatter pretty` を指定し、テストファイルごとの見出しを表
+示させます。テストファイル名やディレクトリ構成で対象スクリプトや関数を示す方針で
+す。
+
 
 BATS をローカルにインストールする場合は、[公式サイト](https://github.com/bats-core/bats-core) の手順に従ってください。
 ```sh
-bats --recursive test
+bats --formatter pretty --recursive test
 ```
 
 特定のテストだけを実行したい場合はパスを指定してください。

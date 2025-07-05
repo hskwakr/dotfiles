@@ -11,4 +11,4 @@ jobs:
       - name: Install BATS
         run: sudo apt-get update && sudo apt-get install -y bats
       - name: Run BATS tests
-        run: bats --recursive test
+        run: bats --formatter pretty --recursive test
