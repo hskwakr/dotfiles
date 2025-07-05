@@ -32,4 +32,4 @@ Docker イメージは `bats/bats:latest` をベースにしており、ビル�
 
 ## CI での自動実行
 
-このリポジトリでは Pull Request 作成時に GitHub Actions が自動で BATS テストを実行します。ワークフローの定義は `.github/workflows/test.yml` を参照してください。`TERM` を `xterm` に設定してから `bats --formatter pretty --recursive test` を実行し、非対話環境でも色付き出力を有効にしています。
+このリポジトリでは Pull Request 作成時に GitHub Actions が自動で BATS テストを実行します。ワークフローの定義は `.github/workflows/test.yml` を参照してください。`TERM` を `xterm` に設定し、`script` コマンド経由で `bats --formatter pretty --recursive test` を実行することで、CI 環境で出力が重複する問題を防いでいます。
