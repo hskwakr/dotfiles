@@ -31,4 +31,4 @@ else
   done
 fi
 
-docker run --rm dotfiles-bats --formatter pretty "${ARGS[@]}"
+docker run --rm -e TERM=xterm dotfiles-bats --formatter pretty "${ARGS[@]}"
