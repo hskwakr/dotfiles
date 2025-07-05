@@ -5,7 +5,9 @@ setup() {
   CHSH_LOG="$BATS_TEST_TMPDIR/chsh.log"
   chsh() { echo "chsh $@" >> "$CHSH_LOG"; }
   export -f chsh
-  source "$BATS_TEST_DIRNAME/lib/install_functions.sh"
+
+  source "$BATS_TEST_DIRNAME/../../bin/install.sh"
+
   log() { :; }
 }
 

@@ -388,4 +388,6 @@ ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
 LOG_DIR="$DOTFILES_DIR/logs"
 LOG_FILE="$LOG_DIR/install.log"
 
-main "$DOTFILES_DIR" "$SHELL_PATH"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$DOTFILES_DIR" "$SHELL_PATH"
+fi

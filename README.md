@@ -23,10 +23,10 @@ You can run them locally using the Docker helper script or by installing BATS di
 ```sh
 # Using Docker
 cd test
-./run_tests.sh sample.bats
+./run_tests.sh
 
 # Or with a local BATS installation
-bats test/sample.bats
+bats --recursive test
 ```
 
 See [doc/projects/testing.md](doc/projects/testing.md) for details on both approaches.

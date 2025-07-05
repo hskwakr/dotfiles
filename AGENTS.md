@@ -29,7 +29,7 @@ AGENTS.md と `doc/` 以下のドキュメントはすべて日本語で記述�
 
 BATS をローカルにインストールする場合は、[公式サイト](https://github.com/bats-core/bats-core) の手順に従ってください。
 ```sh
-bats test/sample.bats
+bats --recursive test
 ```
 
-この方法でも同じテストを実行できます。
+特定のテストだけを実行したい場合はパスを指定してください。
