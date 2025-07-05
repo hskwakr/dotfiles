@@ -26,7 +26,7 @@ cd test
 ./run_tests.sh
 
 # Or with a local BATS installation
-bats --recursive test
+bats --formatter pretty --recursive test
 ```
 
 See [doc/projects/testing.md](doc/projects/testing.md) for details on both approaches.
