@@ -6,7 +6,14 @@ setup() {
   LOG_FILE="$LOG_DIR/install.log"
   LOG_MAX_SIZE=10
   LOG_BACKUP_COUNT=2
-  source "$BATS_TEST_DIRNAME/lib/install_functions.sh"
+
+  source "$BATS_TEST_DIRNAME/../../bin/install.sh"
+
+  LOG_DIR="$BATS_TMPDIR/logs"
+  LOG_FILE="$LOG_DIR/install.log"
+  LOG_MAX_SIZE=10
+  LOG_BACKUP_COUNT=2
+
   log() { :; }
 }
 

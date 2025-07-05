@@ -6,6 +6,10 @@ setup() {
   mkdir -p "$HOME_DIR" "$DOTFILES_DIR"
   export HOME="$HOME_DIR"
 
+  source "$BATS_TEST_DIRNAME/../../bin/install.sh"
+
+  DOTFILES_DIR="$BATS_TMPDIR/repo"
+
   BACKUP_DIR="$DOTFILES_DIR/backups"
   ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
   LOG_DIR="$DOTFILES_DIR/logs"
@@ -15,7 +19,6 @@ setup() {
   BACKUP_MAX_COUNT=5
   ignore_list=("ignoreme")
 
-  source "$BATS_TEST_DIRNAME/lib/install_functions.sh"
   log() { :; }
 }
 
