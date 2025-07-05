@@ -31,4 +31,4 @@ else
   done
 fi
 
-docker run --rm dotfiles-bats "${ARGS[@]}"
+docker run --rm dotfiles-bats --formatter pretty "${ARGS[@]}"
