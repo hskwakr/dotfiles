@@ -70,3 +70,22 @@ teardown() {
   [ -L "$HOME/dest/.hidden" ]
   [ "$(readlink "$HOME/dest/.hidden")" = "$DOTFILES_DIR/src/.hidden" ]
 }
+
+@test "skips existing links and processes remaining items" {
+  mkdir -p "$DOTFILES_DIR/src"
+  echo "first" > "$DOTFILES_DIR/src/file1"
+  echo "second" > "$DOTFILES_DIR/src/file2"
+
+  # Initial linking
+  run link_directory "$DOTFILES_DIR/src" "$HOME/dest"
+  [ "$status" -eq 0 ]
+
+  # Run again to ensure already linked file1 does not block file2
+  run link_directory "$DOTFILES_DIR/src" "$HOME/dest"
+  [ "$status" -eq 0 ]
+
+  [ -L "$HOME/dest/file1" ]
+  [ "$(readlink "$HOME/dest/file1")" = "$DOTFILES_DIR/src/file1" ]
+  [ -L "$HOME/dest/file2" ]
+  [ "$(readlink "$HOME/dest/file2")" = "$DOTFILES_DIR/src/file2" ]
+}
