@@ -59,3 +59,14 @@ teardown() {
   shopt -u nullglob
   [ "${#backups[@]}" -ge 1 ]
 }
+
+@test "links hidden files" {
+  mkdir -p "$DOTFILES_DIR/src"
+  echo "secret" > "$DOTFILES_DIR/src/.hidden"
+
+  run link_directory "$DOTFILES_DIR/src" "$HOME/dest"
+  [ "$status" -eq 0 ]
+
+  [ -L "$HOME/dest/.hidden" ]
+  [ "$(readlink "$HOME/dest/.hidden")" = "$DOTFILES_DIR/src/.hidden" ]
+}

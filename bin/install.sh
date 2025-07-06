@@ -159,13 +159,22 @@ backup_and_link() {
 link_directory() {
   local src_dir=$1 dest_dir=$2
   mkdir -p "$dest_dir"
-  for item in "$src_dir"/*; do
-    local item_name=$(basename "$item")
+  for item in "$src_dir"/.* "$src_dir"/*; do
+    local item_name
+    item_name=$(basename "$item")
+
+    # Skip current and parent directory entries
+    if [[ "$item_name" == "." || "$item_name" == ".." ]]; then
+      continue
+    fi
+
     local dest_item="$dest_dir/$item_name"
+
     if is_ignored "$item_name"; then
       log INFO "Ignored $item_name"
       continue
     fi
+
     if [ -d "$item" ]; then
       log INFO "Processing directory: $item"
       link_directory "$item" "$dest_item"

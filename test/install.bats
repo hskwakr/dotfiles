@@ -38,6 +38,16 @@ teardown() {
   [ "${#backups[@]}" -ge 1 ]
 }
 
+@test "install.sh links dotfiles in env/common" {
+  echo "hidden" > "$REPO/env/common/.hiddenrc"
+
+  run bash "$BATS_TEST_DIRNAME/../bin/install.sh" -d "$REPO"
+  [ "$status" -eq 0 ]
+
+  [ -L "$HOME/.hiddenrc" ]
+  [ "$(readlink "$HOME/.hiddenrc")" = "$REPO/env/common/.hiddenrc" ]
+}
+
 @test "install.sh does not link root-level dotfiles" {
   echo "keep" > "$HOME/.bashrc"
 
