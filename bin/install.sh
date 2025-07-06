@@ -8,7 +8,7 @@
 # Description:
 #   This script links dotfiles to the home directory and optionally changes the default shell.
 
-set -e
+set -euo pipefail
 
 # Configuration Variables
 # -----------------------
