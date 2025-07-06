@@ -45,3 +45,17 @@ teardown() {
   [ ! -e "$REPO/backups/old.bak" ]
   [ ! -e "$REPO/logs/old.log" ]
 }
+
+@test "clean.sh keeps unrelated files" {
+  echo "keep" > "$HOME/keepfile"
+  echo "repo" > "$REPO/keepfile"
+
+  run bash "$BATS_TEST_DIRNAME/../bin/clean.sh"
+  [ "$status" -eq 0 ]
+
+  [ -f "$HOME/keepfile" ]
+  grep -q "keep" "$HOME/keepfile"
+
+  [ -f "$REPO/keepfile" ]
+  grep -q "repo" "$REPO/keepfile"
+}
