@@ -330,6 +330,29 @@ install_env_common() {
   fi
 }
 
+# Link OS-specific config directory to the user's home with one-level fallback
+install_env_os() {
+  local os_id=$1
+  local os_dir="$DOTFILES_DIR/env/$os_id"
+  if [ -d "$os_dir" ]; then
+    log INFO "Linking OS-specific configs from $os_dir"
+    link_directory "$os_dir" "$HOME"
+    return
+  fi
+
+  if [[ "$os_id" == *-* ]]; then
+    local generic="${os_id%-*}"
+    os_dir="$DOTFILES_DIR/env/$generic"
+    if [ -d "$os_dir" ]; then
+      log INFO "Linking OS fallback configs from $os_dir"
+      link_directory "$os_dir" "$HOME"
+      return
+    fi
+  fi
+
+  log INFO "No OS-specific directory found for $os_id"
+}
+
 # Change the default shell if the given path is valid and different
 setup_shell() {
   local shell_path=${1:-$SHELL}
@@ -366,6 +389,7 @@ main() {
   check_command "git"
   prepare_repo "$repo_dir"
   install_env_common
+  install_env_os "$os_name"
   setup_shell "$shell_path"
   log INFO "Installation completed"
 }
