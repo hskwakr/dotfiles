@@ -1,5 +1,5 @@
 [user]
-	name = akira
+	name = hskwakr
 	email = 33633391+hskwakr@users.noreply.github.com
 [alias]
 	lol = log --graph --decorate --pretty=oneline --all --abbrev-commit
