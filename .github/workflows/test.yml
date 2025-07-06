@@ -13,4 +13,9 @@ jobs:
       - name: Run BATS tests
         env:
           TERM: xterm
-        run: bats --formatter junit --recursive test
+        run: bats --formatter junit --recursive test > junit.xml
+      - name: Publish Test Report
+        if: always()
+        uses: mikepenz/action-junit-report@v3
+        with:
+          report_paths: junit.xml
