@@ -287,37 +287,6 @@ prepare_repo() {
   fi
 }
 
-# Link dotfiles from the repository root into the home directory
-install_root_dotfiles() {
-  # Process each item in the dotfiles directory
-  for item in "$DOTFILES_DIR"/.* "$DOTFILES_DIR"/*; do
-    # Skip . and .. directories
-    [ "$item" = "$DOTFILES_DIR/." ] || [ "$item" = "$DOTFILES_DIR/.." ] && continue
-
-    local item_name=$(basename "$item")
-    local dest_item="$HOME/$item_name"
-    if is_ignored "$item_name"; then
-      log INFO "Ignored $item_name"
-      continue
-    fi
-    if [ -d "$item" ]; then
-      log INFO "Processing directory: $item"
-      link_directory "$item" "$dest_item"
-    elif [ -f "$item" ] || [ -L "$item" ]; then
-      log INFO "Processing file: $item"
-      backup_and_link "$item" "$dest_item"
-    else
-      log WARNING "Skipped unusual item: $item"
-    fi
-  done
-}
-
-# Wrapper to prepare the repository and link dotfiles
-install_dotfiles() {
-  local repo_dir=$1
-  prepare_repo "$repo_dir"
-  install_root_dotfiles
-}
 
 # Link files located under env/common into the user's home
 install_env_common() {
