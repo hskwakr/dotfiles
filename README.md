@@ -34,4 +34,4 @@ For a TDD-style workflow that writes failing tests first, see
 [doc/projects/tdd.md](doc/projects/tdd.md).
 
 ### Continuous Integration
-BATS tests run automatically on each pull request via GitHub Actions. The workflow is defined in `.github/workflows/test.yml`.
+BATS tests run automatically on each pull request via GitHub Actions. The workflow in `.github/workflows/test.yml` runs on `pull_request_target`, executes `bats --formatter junit --recursive test > junit.xml`, and posts a summary comment using `mikepenz/action-junit-report@v3`.
