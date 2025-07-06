@@ -32,4 +32,4 @@ Docker イメージは `bats/bats:latest` をベースにしており、ビル�
 
 ## CI での自動実行
 
-このリポジトリでは Pull Request 作成時に GitHub Actions が自動で BATS テストを実行します。ワークフローの定義は `.github/workflows/test.yml` を参照してください。`TERM` を `xterm` に設定してから `bats --formatter pretty --recursive test` を実行し、非対話環境でも色付き出力を有効にしています。
+このリポジトリでは Pull Request 作成時に GitHub Actions が自動で BATS テストを実行します。ワークフローの定義は `.github/workflows/test.yml` を参照してください。CI では `TERM=xterm` を設定し、`bats --formatter junit --recursive test > junit.xml` を実行して JUnit 形式の結果を生成した後、`mikepenz/action-junit-report@v3` でテストサマリーをコメントとして投稿します。ワークフローは `pull_request_target` イベントで起動します。
