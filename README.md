@@ -18,7 +18,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/hskwakr/dotfiles/main/bi
 
 ## Testing
 The repository provides basic [BATS](https://github.com/bats-core/bats-core) tests.
-You can run them locally using the Docker helper script or by installing BATS directly.
+You can run them locally using the Docker helper script or by installing BATS directly.test
 
 ```sh
 # Using Docker
