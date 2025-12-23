@@ -125,3 +125,22 @@ if [ -d ~/.bashrc.d ]; then
     done
 fi
 unset rc
+
+# pnpm
+export PNPM_HOME="~/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+if command -v fzf &> /dev/null; then
+    # eval "$(fzf --bash)"
+    source /usr/share/doc/fzf/examples/key-bindings.bash
+fi
+
+if command -v starship &> /dev/null; then
+    eval "$(starship init bash)"
+fi
+
+export PATH="$HOME/.local/bin:$PATH"
