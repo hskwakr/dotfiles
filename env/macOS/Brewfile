@@ -1,46 +1,24 @@
-tap "homebrew/bundle"
 tap "satococoa/tap"
-# Modern, maintained replacement for ls
 brew "eza"
-# Play, record, convert, and stream select audio and video codecs
 brew "ffmpeg"
-# Command-line fuzzy finder written in Go
 brew "fzf"
-# GitHub command-line tool
 brew "gh"
-# Remote repository management made easy
 brew "ghq"
-# Distributed revision control system
 brew "git"
-# Lightweight and flexible command-line JSON processor
 brew "jq"
-# Manage multiple Node.js versions
 brew "nvm"
-# Fast, disk space efficient package manager
 brew "pnpm"
-# Monitor data's progress through a pipe
 brew "pv"
-# Ruby version manager
 brew "rbenv"
-# Cross-shell prompt for astronauts
 brew "starship"
-# Terminal multiplexer
 brew "tmux"
-# Display directories as trees (with optional color/HTML output)
 brew "tree"
-# Extremely fast Python package installer and resolver, written in Rust
 brew "uv"
-# Worktree Plus - Enhanced worktree management with automated setup and hooks
 brew "satococoa/tap/wtp"
-# Write, edit, and chat about your code with AI
 cask "cursor"
-# Voice and text chat software
 cask "discord"
 cask "font-fira-mono-nerd-font"
-# Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
-# Team communication and collaboration software
 cask "slack"
-# Open-source code editor
 cask "visual-studio-code"
 vscode "bierner.markdown-mermaid"
