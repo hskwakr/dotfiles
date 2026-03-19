@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # clean.sh - A script to clean up after dotfiles installation
 # Usage:
-#   ./clean.sh [-h] [-r] [-b] [-l] [-s]
+#   ./clean.sh [-d dotfiles_directory] [-h] [-r] [-b] [-l] [-s]
+#     -d: specify dotfiles directory
 #     -h: show this help message
 #     -r: restore original environment
 #     -b: clean old backups
@@ -16,17 +17,15 @@ source "$SCRIPT_DIR/lib/helpers.sh"
 
 # Configuration Variables
 # -----------------------
-DOTFILES_DIR="$HOME/dotfiles"
-BACKUP_DIR="$DOTFILES_DIR/backups"
-ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
-LOG_DIR="$DOTFILES_DIR/logs"
+DOTFILES_DIR="$(detect_dotfiles_dir "${BASH_SOURCE[0]}")"
 
 print_usage() {
   echo "Description:"
   echo "  A script to clean up dotfiles and restore original environment"
   echo
-  echo "Usage: $0 [-h] [-r] [-b] [-l] [-s]"
+  echo "Usage: $0 [-d dotfiles_directory] [-h] [-r] [-b] [-l] [-s]"
   echo "Options:"
+  echo "  -d: specify dotfiles directory"
   echo "  -h: show this help message"
   echo "  -r: restore original environment"
   echo "  -b: clean old backups (older than 30 days)"
@@ -107,10 +106,13 @@ main() {
   local do_clean_logs=false
   local do_clean_symlinks=false
   local any_option=false
-  
+
   # Parse command line arguments
-  while getopts "hrbls" opt; do
+  while getopts "d:hrbls" opt; do
     case $opt in
+      d)
+        DOTFILES_DIR="$OPTARG"
+        ;;
       h)
         print_usage
         ;;
@@ -135,6 +137,11 @@ main() {
         ;;
     esac
   done
+
+  # Update derived paths after option parsing
+  BACKUP_DIR="$DOTFILES_DIR/backups"
+  ORIGINAL_BACKUP_DIR="$BACKUP_DIR/original"
+  LOG_DIR="$DOTFILES_DIR/logs"
 
   # If no options specified, execute all operations
   if [ "$any_option" = false ]; then

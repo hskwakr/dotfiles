@@ -10,6 +10,21 @@
 
 set -euo pipefail
 
+# Detect the dotfiles repository root from the calling script location.
+# Falls back to $HOME/dotfiles when the script path cannot be resolved
+# (e.g. when executed via curl).
+detect_dotfiles_dir() {
+  local script_path="${1:-}"
+  if [ -n "$script_path" ] && [ -f "$script_path" ]; then
+    local script_dir
+    script_dir="$(cd "$(dirname "$script_path")" && pwd)"
+    # The parent of bin/ is the repository root
+    echo "$(cd "$script_dir/.." && pwd)"
+  else
+    echo "$HOME/dotfiles"
+  fi
+}
+
 # Configuration Variables
 # -----------------------
 # Update the following variables as per your environment and requirements.
@@ -36,7 +51,7 @@ ignore_list=(
 GIT_REPO_URL="https://github.com/hskwakr/dotfiles.git"
 
 # Base directories for dotfiles management.
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="$(detect_dotfiles_dir "${BASH_SOURCE[0]}")"
 SHELL_PATH="$SHELL"
 
 # Directories derived from DOTFILES_DIR. These values are updated after
@@ -262,29 +277,19 @@ detect_os() {
 prepare_repo() {
   local repo_dir=$1
 
-  # Git clone dotfiles repository if it doesn't exist
-  if [ ! -d "$repo_dir" ]; then
+  if [ -d "$repo_dir/.git" ]; then
+    log INFO "Already inside dotfiles repository, skipping clone/pull"
+  elif [ -d "$repo_dir" ]; then
+    log WARNING "$repo_dir exists but is not a git repository. Re-cloning."
+    rm -rf "$repo_dir"
+    git clone "$GIT_REPO_URL" "$repo_dir"
+    log INFO "Re-cloned dotfiles repository"
+  else
     git clone "$GIT_REPO_URL" "$repo_dir"
     log INFO "Cloned dotfiles repository"
-  else
-    # Pull latest changes from dotfiles repository if it exists
-    if [ -d "$repo_dir/.git" ]; then
-      log INFO "Pulling latest changes from dotfiles repository"
-      git -C "$repo_dir" pull origin main
-    else
-      # If it's not a valid git repository, re-clone the repository
-      log WARNING "$repo_dir is not a valid git repository. Re-cloning the repository."
-      rm -rf "$repo_dir"
-      git clone "$GIT_REPO_URL" "$repo_dir"
-      log INFO "Re-cloned dotfiles repository"
-    fi
   fi
 
-  # Create backup and log directories if they don't exist
-  if [ -d "$repo_dir" ]; then
-    log INFO "Creating backup and log directories"
-    mkdir -p "$BACKUP_DIR" "$LOG_DIR"
-  fi
+  mkdir -p "$BACKUP_DIR" "$LOG_DIR"
 }
 
 
