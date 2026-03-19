@@ -24,3 +24,25 @@ setup() {
   [[ "$output" == *"hello"* ]]
 }
 
+@test "detect_dotfiles_dir returns repo root when given a script in bin/" {
+  local script_path="${BATS_TEST_DIRNAME}/../bin/clean.sh"
+  run detect_dotfiles_dir "$script_path"
+  [ "$status" -eq 0 ]
+  # clean.sh is in bin/, so parent of bin/ is repo root
+  local expected
+  expected="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)"
+  [ "$output" = "$expected" ]
+}
+
+@test "detect_dotfiles_dir falls back to HOME/dotfiles when path is empty" {
+  run detect_dotfiles_dir ""
+  [ "$status" -eq 0 ]
+  [ "$output" = "$HOME/dotfiles" ]
+}
+
+@test "detect_dotfiles_dir falls back to HOME/dotfiles when file does not exist" {
+  run detect_dotfiles_dir "/nonexistent/path/script.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "$HOME/dotfiles" ]
+}
+

@@ -34,7 +34,7 @@ teardown() {
 }
 
 @test "clean.sh restores and cleans" {
-  run bash "$BATS_TEST_DIRNAME/../bin/clean.sh"
+  run bash "$BATS_TEST_DIRNAME/../bin/clean.sh" -d "$REPO"
   [ "$status" -eq 0 ]
 
   [ -f "$HOME/commonrc" ]
@@ -50,7 +50,7 @@ teardown() {
   echo "keep" > "$HOME/keepfile"
   echo "repo" > "$REPO/keepfile"
 
-  run bash "$BATS_TEST_DIRNAME/../bin/clean.sh"
+  run bash "$BATS_TEST_DIRNAME/../bin/clean.sh" -d "$REPO"
   [ "$status" -eq 0 ]
 
   [ -f "$HOME/keepfile" ]
@@ -58,4 +58,10 @@ teardown() {
 
   [ -f "$REPO/keepfile" ]
   grep -q "repo" "$REPO/keepfile"
+}
+
+@test "clean.sh -d option overrides default directory" {
+  run bash "$BATS_TEST_DIRNAME/../bin/clean.sh" -d "$REPO" -b
+  [ "$status" -eq 0 ]
+  [ ! -e "$REPO/backups/old.bak" ]
 }

@@ -10,6 +10,21 @@ if [ -z "${IGNORE_LIST+x}" ]; then
   )
 fi
 
+# Detect the dotfiles repository root from the calling script location.
+# Falls back to $HOME/dotfiles when the script path cannot be resolved
+# (e.g. when executed via curl).
+detect_dotfiles_dir() {
+  local script_path="${1:-}"
+  if [ -n "$script_path" ] && [ -f "$script_path" ]; then
+    local script_dir
+    script_dir="$(cd "$(dirname "$script_path")" && pwd)"
+    # bin/ の親ディレクトリがリポジトリルート
+    echo "$(cd "$script_dir/.." && pwd)"
+  else
+    echo "$HOME/dotfiles"
+  fi
+}
+
 # Output log messages with timestamp and level
 log() {
   local level=$1
