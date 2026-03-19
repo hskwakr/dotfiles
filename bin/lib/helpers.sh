@@ -18,7 +18,7 @@ detect_dotfiles_dir() {
   if [ -n "$script_path" ] && [ -f "$script_path" ]; then
     local script_dir
     script_dir="$(cd "$(dirname "$script_path")" && pwd)"
-    # bin/ の親ディレクトリがリポジトリルート
+    # The parent of bin/ is the repository root
     echo "$(cd "$script_dir/.." && pwd)"
   else
     echo "$HOME/dotfiles"
