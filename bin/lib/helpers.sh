@@ -37,6 +37,9 @@ log() {
 # Return 0 if the given name is listed in IGNORE_LIST
 is_ignored() {
   local name=$1
+  if [ "${#IGNORE_LIST[@]}" -eq 0 ]; then
+    return 1
+  fi
   for ignored in "${IGNORE_LIST[@]}"; do
     [[ "$name" == "$ignored" ]] && return 0
   done

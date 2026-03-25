@@ -107,6 +107,9 @@ manage_log_file() {
 # Return 0 if the given path matches an ignored name
 is_ignored() {
   local item_name=$1
+  if [ "${#ignore_list[@]}" -eq 0 ]; then
+    return 1
+  fi
   for ignored in "${ignore_list[@]}"; do
     [ "$item_name" == "$ignored" ] && return 0
   done
@@ -158,7 +161,14 @@ backup_and_link() {
         log INFO "Symbolic link already exists and points to the correct location: $dest"
         return
       else
-        log WARNING "Re-linking symbolic link: $dest"
+        local old_target
+        old_target="$(readlink "$dest")"
+        # Detect when an OS-specific config overrides a common one
+        if [[ "$old_target" == "$DOTFILES_DIR/env/common/"* && "$src" != "$DOTFILES_DIR/env/common/"* ]]; then
+          log INFO "Overriding common config with OS-specific version: $dest"
+        else
+          log WARNING "Re-linking symbolic link: $dest"
+        fi
         rm "$dest"
       fi
     else
@@ -362,6 +372,8 @@ main() {
   log INFO "Detected OS: $os_name"
   check_command "git"
   prepare_repo "$repo_dir"
+  # Order matters: common is linked first, then OS-specific configs override
+  # any same-name files via last-wins. Do not reorder these calls.
   install_env_common
   install_env_os "$os_name"
   setup_shell "$shell_path"
