@@ -1,0 +1,2 @@
+# Exclude packages released within the last 7 days (supply chain attack mitigation)
+exclude-newer = "7 days"
