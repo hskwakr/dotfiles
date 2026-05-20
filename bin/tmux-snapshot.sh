@@ -135,16 +135,34 @@ restore_snapshot() {
   done
 }
 
+# Match only basenames of the form snapshot_YYYYMMDD_HHMMSS.json.
+# Guards list/restore/rotate against unrelated files like snapshot_draft.json
+# that share the snapshot_*.json prefix but are not produced by `save`.
+is_timestamped_snapshot() {
+  local base
+  base=$(basename "$1")
+  [[ $base =~ ^snapshot_[0-9]{8}_[0-9]{6}\.json$ ]]
+}
+
 # Print snapshot files in the given directory, newest first.
 # Only files matching snapshot_YYYYMMDD_HHMMSS.json are considered.
 list_snapshots() {
   local dir=$1
   [ -d "$dir" ] || return 0
   shopt -s nullglob
-  local files=("$dir"/snapshot_*.json)
+  local candidates=("$dir"/snapshot_*.json)
   shopt -u nullglob
+  local files=()
+  if [ "${#candidates[@]}" -gt 0 ]; then
+    local f
+    for f in "${candidates[@]}"; do
+      if is_timestamped_snapshot "$f"; then
+        files+=("$f")
+      fi
+    done
+  fi
   [ "${#files[@]}" -eq 0 ] && return 0
-  # ls -t prints newest first by mtime; pipe through awk to print full path safely.
+  # ls -t prints newest first by mtime.
   ls -t "${files[@]}"
 }
 
@@ -154,8 +172,17 @@ rotate_snapshots() {
   local max_count=$2
   [ -d "$dir" ] || return 0
   shopt -s nullglob
-  local files=("$dir"/snapshot_*.json)
+  local candidates=("$dir"/snapshot_*.json)
   shopt -u nullglob
+  local files=()
+  if [ "${#candidates[@]}" -gt 0 ]; then
+    local f
+    for f in "${candidates[@]}"; do
+      if is_timestamped_snapshot "$f"; then
+        files+=("$f")
+      fi
+    done
+  fi
   if [ "${#files[@]}" -le "$max_count" ]; then
     return 0
   fi
