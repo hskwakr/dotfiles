@@ -84,31 +84,40 @@ restore_snapshot() {
   local name
   while IFS= read -r name; do
     [ -n "$name" ] || continue
-    if printf '%s\n' "$live_sessions" | grep -qx "$name"; then
+    if printf '%s\n' "$live_sessions" | grep -qxF "$name"; then
       echo "ERROR: session '$name' already exists. Aborting restore." >&2
       echo "Hint: kill the existing session or restore manually." >&2
       return 1
     fi
   done <<<"$snapshot_sessions"
 
-  # Replay each session: new-session, new-window for additional windows,
-  # split-window for additional panes, then select-layout per window.
+  # Replay each session: new-session creates the first window with the first
+  # pane, new-window adds the remaining windows, split-window adds the
+  # remaining panes within each window, then select-layout reapplies the
+  # saved layout per window.
+  #
+  # Position-based (not index-based) skipping of the first window/pane is
+  # required because tmux installations with `base-index 1` or
+  # `pane-base-index 1` produce snapshots whose first window/pane has
+  # numeric index 1, not 0.
   jq -r '
     .sessions[] as $s
     | $s.windows[0] as $w0
     | $w0.panes[0] as $p0
     | "new-session\t-d\t-s\t\($s.name)\t-n\t\($w0.name)\t-c\t\($p0.cwd)",
-      ( $s.windows[]
-        | . as $w
+      ( $s.windows | to_entries[]
+        | .key as $wpos
+        | .value as $w
         | (
-            ( if .index == 0 then empty
-              else "new-window\t-t\t\($s.name):\(.index)\t-n\t\(.name)\t-c\t\(.panes[0].cwd)"
+            ( if $wpos == 0 then empty
+              else "new-window\t-t\t\($s.name):\($w.index)\t-n\t\($w.name)\t-c\t\($w.panes[0].cwd)"
               end ),
-            ( .panes[]
-              | select(.index > 0)
-              | "split-window\t-t\t\($s.name):\($w.index)\t-c\t\(.cwd)"
+            ( $w.panes | to_entries[]
+              | select(.key > 0)
+              | .value as $p
+              | "split-window\t-t\t\($s.name):\($w.index)\t-c\t\($p.cwd)"
             ),
-            "select-layout\t-t\t\($s.name):\(.index)\t\(.layout)"
+            "select-layout\t-t\t\($s.name):\($w.index)\t\($w.layout)"
           )
       )
   ' "$input" | while IFS=$'\t' read -ra cmd; do

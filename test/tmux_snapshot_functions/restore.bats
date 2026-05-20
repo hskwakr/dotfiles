@@ -130,6 +130,71 @@ teardown() {
   ! grep -q 'split-window' "$TMUX_CMD_LOG"
 }
 
+@test "restore_snapshot handles base-index 1 without duplicating first window or pane" {
+  cat > "$TEST_DIR/base1.json" <<'JSON'
+{
+  "version": 1,
+  "saved_at": "2026-05-20T10:30:00Z",
+  "sessions": [
+    {
+      "name": "work",
+      "windows": [
+        {
+          "index": 1,
+          "name": "main",
+          "layout": "l1",
+          "panes": [
+            { "index": 1, "cwd": "/Users/akira/dev" },
+            { "index": 2, "cwd": "/Users/akira/dev/foo" }
+          ]
+        },
+        {
+          "index": 2,
+          "name": "logs",
+          "layout": "l2",
+          "panes": [
+            { "index": 1, "cwd": "/var/log" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+JSON
+  printf '' > "$LIVE_SESSIONS_FILE"
+
+  restore_snapshot "$TEST_DIR/base1.json"
+
+  # First window (index 1) is created by new-session, must not be created again by new-window.
+  new_window_count=$(grep -c '^new-window' "$TMUX_CMD_LOG" || true)
+  [ "$new_window_count" -eq 1 ]
+
+  # First pane (index 1) of first window is created by new-session, must not be split again.
+  # Second pane (index 2) of first window IS a split. So total split-window invocations = 1.
+  split_window_count=$(grep -c '^split-window' "$TMUX_CMD_LOG" || true)
+  [ "$split_window_count" -eq 1 ]
+
+  # cwd for the duplicated pane (index 2) must still appear.
+  grep -q '/Users/akira/dev/foo' "$TMUX_CMD_LOG"
+}
+
+@test "restore_snapshot collision check treats session names as fixed strings, not regex" {
+  cat > "$TEST_DIR/regex.json" <<'JSON'
+{
+  "version": 1,
+  "saved_at": "2026-05-20T10:30:00Z",
+  "sessions": [
+    { "name": "work.x", "windows": [ { "index": 0, "name": "w0", "layout": "l1", "panes": [ { "index": 0, "cwd": "/a" } ] } ] }
+  ]
+}
+JSON
+  # Live session "workax" would match the regex /work.x/ if -F is missing.
+  printf 'workax\n' > "$LIVE_SESSIONS_FILE"
+
+  run restore_snapshot "$TEST_DIR/regex.json"
+  [ "$status" -eq 0 ]
+}
+
 @test "restore_snapshot detects collision when one of multiple sessions exists" {
   cat > "$TEST_DIR/multi.json" <<'JSON'
 {
