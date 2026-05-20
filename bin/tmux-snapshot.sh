@@ -91,38 +91,47 @@ restore_snapshot() {
     fi
   done <<<"$snapshot_sessions"
 
-  # Replay each session: new-session creates the first window with the first
-  # pane, new-window adds the remaining windows, split-window adds the
-  # remaining panes within each window, then select-layout reapplies the
-  # saved layout per window.
-  #
-  # Position-based (not index-based) skipping of the first window/pane is
-  # required because tmux installations with `base-index 1` or
-  # `pane-base-index 1` produce snapshots whose first window/pane has
-  # numeric index 1, not 0.
-  jq -r '
-    .sessions[] as $s
-    | $s.windows[0] as $w0
-    | $w0.panes[0] as $p0
-    | "new-session\t-d\t-s\t\($s.name)\t-n\t\($w0.name)\t-c\t\($p0.cwd)",
-      ( $s.windows | to_entries[]
-        | .key as $wpos
-        | .value as $w
-        | (
-            ( if $wpos == 0 then empty
-              else "new-window\t-t\t\($s.name):\($w.index)\t-n\t\($w.name)\t-c\t\($w.panes[0].cwd)"
-              end ),
-            ( $w.panes | to_entries[]
-              | select(.key > 0)
-              | .value as $p
-              | "split-window\t-t\t\($s.name):\($w.index)\t-c\t\($p.cwd)"
-            ),
-            "select-layout\t-t\t\($s.name):\($w.index)\t\($w.layout)"
-          )
-      )
-  ' "$input" | while IFS=$'\t' read -ra cmd; do
-    [ "${#cmd[@]}" -gt 0 ] || continue
-    tmux "${cmd[@]}"
+  # Replay sessions, windows, and panes in array order. Targets are scoped to
+  # the session name only (no `:N` index) so the most recently created or
+  # split tmux entity is always the operand. Saved window/pane indices are
+  # intentionally ignored at restore time because:
+  #   - tmux assigns indices via `base-index` / `pane-base-index`, which may
+  #     differ between the save and restore environments.
+  #   - Saved indices can be non-contiguous (e.g. windows 3 and 5 after
+  #     killing 0, 1, 2, 4 with `renumber-windows` off). Targeting those
+  #     indices on a fresh session would address non-existent windows.
+  local session_count s_pos
+  session_count=$(jq -r '.sessions | length' "$input")
+  for ((s_pos = 0; s_pos < session_count; s_pos++)); do
+    local sname w0_name p0_cwd
+    sname=$(jq -r ".sessions[$s_pos].name" "$input")
+    w0_name=$(jq -r ".sessions[$s_pos].windows[0].name" "$input")
+    p0_cwd=$(jq -r ".sessions[$s_pos].windows[0].panes[0].cwd" "$input")
+
+    tmux new-session -d -s "$sname" -n "$w0_name" -c "$p0_cwd"
+
+    local w_count w_pos
+    w_count=$(jq -r ".sessions[$s_pos].windows | length" "$input")
+    for ((w_pos = 0; w_pos < w_count; w_pos++)); do
+      local w_name w_layout p_count p_pos
+      w_name=$(jq -r ".sessions[$s_pos].windows[$w_pos].name" "$input")
+      w_layout=$(jq -r ".sessions[$s_pos].windows[$w_pos].layout" "$input")
+      p_count=$(jq -r ".sessions[$s_pos].windows[$w_pos].panes | length" "$input")
+
+      if [ "$w_pos" -gt 0 ]; then
+        local first_cwd
+        first_cwd=$(jq -r ".sessions[$s_pos].windows[$w_pos].panes[0].cwd" "$input")
+        tmux new-window -t "$sname" -n "$w_name" -c "$first_cwd"
+      fi
+
+      for ((p_pos = 1; p_pos < p_count; p_pos++)); do
+        local p_cwd
+        p_cwd=$(jq -r ".sessions[$s_pos].windows[$w_pos].panes[$p_pos].cwd" "$input")
+        tmux split-window -t "$sname" -c "$p_cwd"
+      done
+
+      tmux select-layout -t "$sname" "$w_layout"
+    done
   done
 }
 

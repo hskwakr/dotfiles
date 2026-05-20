@@ -195,6 +195,54 @@ JSON
   [ "$status" -eq 0 ]
 }
 
+@test "restore_snapshot uses session-only -t target so saved window indices are not assumed live" {
+  cat > "$TEST_DIR/gappy.json" <<'JSON'
+{
+  "version": 1,
+  "saved_at": "2026-05-20T10:30:00Z",
+  "sessions": [
+    {
+      "name": "work",
+      "windows": [
+        {
+          "index": 3,
+          "name": "main",
+          "layout": "lay-first",
+          "panes": [
+            { "index": 0, "cwd": "/foo" },
+            { "index": 1, "cwd": "/foo/sub" }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "logs",
+          "layout": "lay-second",
+          "panes": [{ "index": 0, "cwd": "/bar" }]
+        }
+      ]
+    }
+  ]
+}
+JSON
+  printf '' > "$LIVE_SESSIONS_FILE"
+
+  restore_snapshot "$TEST_DIR/gappy.json"
+
+  # Initial session is created with first window name + first pane cwd
+  grep -q '^new-session -d -s work -n main -c /foo' "$TMUX_CMD_LOG"
+
+  # Additional commands must target the session by name only (no :N suffix),
+  # because the saved indices (3, 5) do not exist after new-session.
+  ! grep -qE 'work:[0-9]+' "$TMUX_CMD_LOG"
+
+  # Layouts are applied verbatim
+  grep -q 'lay-first' "$TMUX_CMD_LOG"
+  grep -q 'lay-second' "$TMUX_CMD_LOG"
+
+  # Second window is created (no index target)
+  grep -q '^new-window -t work -n logs -c /bar' "$TMUX_CMD_LOG"
+}
+
 @test "restore_snapshot detects collision when one of multiple sessions exists" {
   cat > "$TEST_DIR/multi.json" <<'JSON'
 {
