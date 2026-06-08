@@ -12,4 +12,5 @@
 - [projects/dotfiles.md](projects/dotfiles.md): dotfiles の概要とバックアップ・復元方法
 - [projects/testing.md](projects/testing.md): Docker と BATS を使ったテスト方法
 - [projects/tdd.md](projects/tdd.md): 失敗するテストを書いてからスクリプトを更新する手順
+- [projects/tmux-snapshot.md](projects/tmux-snapshot.md): tmux セッション/ウィンドウ/ペイン構成のスナップショットと復元
 
