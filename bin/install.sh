@@ -45,6 +45,7 @@ ignore_list=(
   "bin"
   "env"
   "test"
+  "outbound-guard_test.sh"
 )
 
 # URL of the git repository containing the dotfiles.

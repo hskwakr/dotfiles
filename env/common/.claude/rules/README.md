@@ -1,0 +1,98 @@
+# Rules
+## Structure
+
+Rules are organized into a **common** layer plus **language-specific** directories:
+
+```
+rules/
+├── common/          # Language-agnostic principles
+│   ├── agents.md
+│   ├── code-review.md
+│   ├── coding-style.md
+│   ├── development-workflow.md
+│   ├── git-workflow.md
+│   ├── hooks.md
+│   ├── patterns.md
+│   ├── performance.md
+│   ├── security.md
+│   └── testing.md
+├── custom/          # Rules written for this setup, not inherited from upstream
+├── typescript/      # TypeScript/JavaScript specific
+├── python/          # Python specific
+├── golang/          # Go specific
+├── php/             # PHP specific
+└── web/             # Web and frontend specific
+```
+
+- **common/** contains universal principles — no language-specific code examples.
+- **custom/** holds rules that are not part of the upstream set. `~/.claude/CLAUDE.md`
+  imports these directly, alongside the ones it picks from `common/`.
+- **Language directories** extend the common rules with framework-specific patterns, tools, and code examples. Each file references its common counterpart.
+
+## Installation
+
+These rules live in [hskwakr/dotfiles](https://github.com/hskwakr/dotfiles) under
+`env/common/.claude/rules/`. Running the dotfiles installer places all of them:
+
+```bash
+git clone https://github.com/hskwakr/dotfiles.git
+./dotfiles/bin/install.sh
+```
+
+`install.sh` symlinks file by file, so `~/.claude/rules/<lang>/<file>.md` points
+back at the repo. There is no per-language install step: every directory is
+placed, and `~/.claude/CLAUDE.md` decides which ones are loaded into every
+session (only `common/` and `custom/`; language directories are imported by the
+projects that need them).
+
+> **Editing a rule edits the repo.** `~/.claude/rules/` holds symlinks, so a
+> change made there is a change to the dotfiles working tree. Commit it on the
+> dotfiles side.
+
+This README is not symlinked — `install.sh` skips any file named `README.md` at
+any depth — so it is repo-side documentation only.
+
+## Rules vs Skills
+
+- **Rules** define standards, conventions, and checklists that apply broadly (e.g., "80% test coverage", "no hardcoded secrets").
+- **Skills** (`skills/` directory) provide deep, actionable reference material for specific tasks (e.g., `python-patterns`, `golang-testing`).
+
+Language-specific rule files reference relevant skills where appropriate. Rules tell you *what* to do; skills tell you *how* to do it.
+
+## Adding a New Language
+
+To add support for a new language (e.g., `rust/`):
+
+1. Create a `rules/rust/` directory
+2. Add files that extend the common rules:
+   - `coding-style.md` — formatting tools, idioms, error handling patterns
+   - `testing.md` — test framework, coverage tools, test organization
+   - `patterns.md` — language-specific design patterns
+   - `hooks.md` — PostToolUse hooks for formatters, linters, type checkers
+   - `security.md` — secret management, security scanning tools
+3. Each file should start with:
+   ```
+   > This file extends [common/xxx.md](../common/xxx.md) with <Language> specific content.
+   ```
+4. Reference existing skills if available, or create new ones under `skills/`.
+
+For non-language domains like `web/`, follow the same layered pattern when there is enough reusable domain-specific guidance to justify a standalone ruleset.
+
+## Rule Priority
+
+When language-specific rules and common rules conflict, **language-specific rules take precedence** (specific overrides general). This follows the standard layered configuration pattern (similar to CSS specificity or `.gitignore` precedence).
+
+- `rules/common/` defines universal defaults applicable to all projects.
+- `rules/golang/`, `rules/python/`, `rules/php/`, `rules/typescript/`, etc. override those defaults where language idioms differ.
+
+### Example
+
+`common/coding-style.md` recommends immutability as a default principle. A language-specific `golang/coding-style.md` can override this:
+
+> Idiomatic Go uses pointer receivers for struct mutation — see [common/coding-style.md](../common/coding-style.md) for the general principle, but Go-idiomatic mutation is preferred here.
+
+### Common rules with override notes
+
+Rules in `rules/common/` that may be overridden by language-specific files are marked with:
+
+> **Language note**: This rule may be overridden by language-specific rules for languages where this pattern is not idiomatic.
