@@ -399,8 +399,8 @@ run_check() {
         if [ "$VERDICT" = "$want" ]; then pass=$((pass + 1))
         else fail=$((fail + 1)); printf '  FAIL want=%s got=%s : %s\n' "$want" "$VERDICT" "$cmd"; fi
     }
-    check_case ask  'gh pr edit -R evetech-jp/oripa-backend-infra 2028 --base dev'
-    check_case ask  'git push git@github.com:evetech-jp/oripa-backend-infra.git main'
+    check_case ask  'gh pr edit -R example-org/work-repo 2028 --base dev'
+    check_case ask  'git push git@github.com:example-org/work-repo.git main'
     check_case ask  'gh api -X PATCH repos/o/r/pulls/1'
     check_case ask  'GH_REPO=o/r gh pr close 1'
     check_case ask  'npm publish'

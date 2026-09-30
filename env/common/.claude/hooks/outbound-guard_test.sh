@@ -25,7 +25,7 @@ ORG=$WORK/org
 BOTH=$WORK/two-remotes
 PLAIN=$WORK/plain
 make_repo "$TN"  https://github.com/hskwakr/task-notes.git
-make_repo "$ORG" git@github.com:evetech-jp/oripa-backend-infra.git
+make_repo "$ORG" git@github.com:example-org/work-repo.git
 make_repo "$BOTH" https://github.com/hskwakr/task-notes.git git@github.com:someone/fork.git
 mkdir -p "$PLAIN"
 
@@ -52,16 +52,16 @@ echo "== target resolution (spec 4.1) =="
 t pass 'git push'                                                         "$TN"
 t ask  'git push'                                                         "$ORG"
 t ask  'git push origin main'                                             "$ORG"
-t ask  'git push git@github.com:evetech-jp/oripa-backend-infra.git main'  "$TN"
+t ask  'git push git@github.com:example-org/work-repo.git main'  "$TN"
 t pass 'git push https://github.com/hskwakr/task-notes.git main'          "$ORG"
-t ask  'gh pr edit -R evetech-jp/oripa-backend-infra 2028 --base dev'     "$TN"
+t ask  'gh pr edit -R example-org/work-repo 2028 --base dev'     "$TN"
 t pass 'gh pr edit -R hskwakr/task-notes 1 --title x'                     "$ORG"
 t ask  'gh pr comment https://github.com/o/r/issues/1 --body hi'          "$TN"
 t ask  'GH_REPO=o/r gh pr close 1'                                        "$TN"
 t ask  'gh api -X PATCH repos/o/r/pulls/1'                                "$TN"
 t ask  'git -C '"$ORG"' push'                                             "$TN"
-t ask  'git push --repo=git@github.com:evetech-jp/x.git main'             "$TN"
-t ask  'git push --repo git@github.com:evetech-jp/x.git main'             "$TN"
+t ask  'git push --repo=git@github.com:example-org/x.git main'             "$TN"
+t ask  'git push --repo git@github.com:example-org/x.git main'             "$TN"
 t pass 'cd '"$TN"' && git push'                                           "$ORG"
 
 echo "== shell variables (spec 4.3) =="
@@ -84,11 +84,11 @@ t ask  'gh api -X POST user/repos -f name=x'                              "$TN"
 
 echo "== read-only stays silent (spec 3.3) =="
 t pass 'gh pr view 12'
-t pass 'gh pr list --repo evetech-jp/oripa-backend-infra'
+t pass 'gh pr list --repo example-org/work-repo'
 t pass 'git fetch origin && git status'
-t pass 'gh search code --owner evetech-jp foo'
+t pass 'gh search code --owner example-org foo'
 t pass 'ls -la && cat README.md'
-t pass 'gh run list --repo evetech-jp/oripa-backend-infra --limit 5'
+t pass 'gh run list --repo example-org/work-repo --limit 5'
 
 echo "== heredoc bodies are prose (spec 3.0) =="
 t pass 'cat <<EOF > /tmp/note
@@ -138,18 +138,18 @@ t ask  'timeout 120 rg -o "git -C \$W push" .'                            "$TN"
 t ask  'grep -c "git push" f.txt'                                         "$TN"
 
 echo "== a command substitution in an assignment still runs (A1) =="
-t ask  'PR_URL=$(gh pr create -R evetech-jp/oripa-backend-infra --title x)' "$TN"
+t ask  'PR_URL=$(gh pr create -R example-org/work-repo --title x)' "$TN"
 t pass 'S=$(gh pr view 78 --json mergeable -q .mergeable)'                "$TN"
 t pass 'for i in 1 2 3; do s=$(gh pr view 78 --json state); done'         "$TN"
 
 echo "== gh writes the table had not heard of (A10) =="
-t ask  'gh repo archive evetech-jp/oripa-backend-infra --yes'
-t ask  'gh repo unarchive evetech-jp/oripa-backend-infra'
-t ask  'gh repo rename new-name -R evetech-jp/oripa-backend-infra'
-t ask  'gh repo deploy-key add key.pub -R evetech-jp/oripa-backend-infra'
-t ask  'gh label create bug -R evetech-jp/oripa-backend-infra'
-t ask  'gh cache delete 1 -R evetech-jp/oripa-backend-infra'
-t ask  'gh pr revert 1 -R evetech-jp/oripa-backend-infra'
+t ask  'gh repo archive example-org/work-repo --yes'
+t ask  'gh repo unarchive example-org/work-repo'
+t ask  'gh repo rename new-name -R example-org/work-repo'
+t ask  'gh repo deploy-key add key.pub -R example-org/work-repo'
+t ask  'gh label create bug -R example-org/work-repo'
+t ask  'gh cache delete 1 -R example-org/work-repo'
+t ask  'gh pr revert 1 -R example-org/work-repo'
 # `gh gist` resolves by cwd like every other repo-scoped verb, so a gist write
 # from inside task-notes passes. Whether a gist is an outbound target at all is
 # a spec question, not a table one -- left alone here.
@@ -177,7 +177,7 @@ echo "== the push URL is git's answer, not remote.<n>.url (B1, C9, B5) =="
 # Each of these leaves remote.origin.url pointing at task-notes and moves the
 # push destination somewhere else through a different config key. Reading
 # remote.<n>.url by hand saw task-notes in all three.
-ORG_URL=git@github.com:evetech-jp/oripa-backend-infra.git
+ORG_URL=git@github.com:example-org/work-repo.git
 PUSHURL=$WORK/pushurl
 make_repo "$PUSHURL" https://github.com/hskwakr/task-notes.git
 git -C "$PUSHURL" config remote.origin.pushurl "$ORG_URL"
@@ -186,7 +186,7 @@ t ask  'git push origin main'                                             "$PUSH
 
 INSTEAD=$WORK/pushinsteadof
 make_repo "$INSTEAD" https://github.com/hskwakr/task-notes.git
-git -C "$INSTEAD" config url.https://github.com/evetech-jp/.pushInsteadOf https://github.com/hskwakr/
+git -C "$INSTEAD" config url.https://github.com/example-org/.pushInsteadOf https://github.com/hskwakr/
 t ask  'git push'                                                         "$INSTEAD"
 
 # `git config --local` does not include the --worktree scope, so a remote
@@ -222,7 +222,7 @@ echo "== gh-resolved names a repository, not just a remote (B9) =="
 # Reading only the key name answered with that remote's own URL.
 RESOLVED=$WORK/gh-resolved
 make_repo "$RESOLVED" https://github.com/hskwakr/task-notes.git
-git -C "$RESOLVED" config remote.origin.gh-resolved evetech-jp/oripa-backend-infra
+git -C "$RESOLVED" config remote.origin.gh-resolved example-org/work-repo
 t ask  'gh pr create --fill'                                              "$RESOLVED"
 t ask  'git push'                                                         "$RESOLVED"
 
@@ -318,20 +318,20 @@ t pass '(cd '"$TN"' && git push)'                                         "$ORG"
 echo "== the destination of a transfer is a positional (B11) =="
 # `gh issue transfer <number|url> <destination>`: -R names the repository the
 # issue leaves, and the one it lands in is never a flag.
-t ask  'gh issue transfer 2028 evetech-jp/oripa-backend-infra'            "$TN"
-t ask  'gh issue transfer https://github.com/hskwakr/task-notes/issues/1 evetech-jp/x' "$TN"
-t ask  'gh issue transfer -R hskwakr/task-notes 1 evetech-jp/x'           "$TN"
-t ask  'gh issue transfer 1 evetech-jp/x -R hskwakr/task-notes'           "$TN"
+t ask  'gh issue transfer 2028 example-org/work-repo'            "$TN"
+t ask  'gh issue transfer https://github.com/hskwakr/task-notes/issues/1 example-org/x' "$TN"
+t ask  'gh issue transfer -R hskwakr/task-notes 1 example-org/x'           "$TN"
+t ask  'gh issue transfer 1 example-org/x -R hskwakr/task-notes'           "$TN"
 t pass 'gh issue transfer 1 hskwakr/task-notes'                           "$TN"
 
 echo "== a remote rewritten in the same line (B15) =="
 # The guard reads the configuration before the command runs, so a set-url
 # earlier on the line makes every directory-derived answer stale.
-t ask  'git remote set-url origin git@github.com:evetech-jp/x.git && git push' "$TN"
+t ask  'git remote set-url origin git@github.com:example-org/x.git && git push' "$TN"
 t ask  'git remote rename origin old && git push'                         "$TN"
-t pass 'git remote set-url origin git@github.com:evetech-jp/x.git'        "$TN"
+t pass 'git remote set-url origin git@github.com:example-org/x.git'        "$TN"
 t pass 'git remote -v && git push'                                        "$TN"
-t pass 'git remote set-url origin git@github.com:evetech-jp/x.git && git push https://github.com/hskwakr/task-notes.git main' "$TN"
+t pass 'git remote set-url origin git@github.com:example-org/x.git && git push https://github.com/hskwakr/task-notes.git main' "$TN"
 
 echo "== a damaged analyser must not fall open (C3) =="
 # An empty or truncated .awk still parses and exits 0 with no output, which is

@@ -1,6 +1,6 @@
 ---
 name: daily-report
-description: bosskaito/daily-report リポジトリに akira の日報を書く。work-recall で当日の事実を想起し、視点を一人称へ反転し、業務/個人に分類し、~40 行に圧縮して members/akira/YYYY/MM/YYYY-MM-DD.md に書き出す。主観（学び・所感）は空欄で残し、commit はしない。「日報を書く」「日報の下書き」「◯/◯の日報」で使う。
+description: 日報リポジトリ（daily-report）に akira の日報を書く。work-recall で当日の事実を想起し、視点を一人称へ反転し、業務/個人に分類し、~40 行に圧縮して members/akira/YYYY/MM/YYYY-MM-DD.md に書き出す。主観（学び・所感）は空欄で残し、commit はしない。「日報を書く」「日報の下書き」「◯/◯の日報」で使う。
 argument-hint: "[YYYY-MM-DD（省略時は前日）]"
 ---
 
@@ -14,7 +14,7 @@ akira の日報を書く。**事実は一次情報から取り、主観は本人
 
 ## 対象
 
-- リポジトリ: `~/ghq/github.com/bosskaito/daily-report`
+- リポジトリ: `ghq list -p daily-report` で見つかるローカルの日報リポジトリ
 - 出力先: `members/akira/<YYYY>/<MM>/<YYYY-MM-DD>.md`（空ファイルが事前生成されている）
 - 参考: `templates/daily.md`（原型）、直近の `members/akira/**` の日報、`members/akira/**/feedback/` の週次フィードバック
 
@@ -31,12 +31,12 @@ akira の日報を書く。**事実は一次情報から取り、主観は本人
 ### 2. 視点を反転する（最重要）
 
 `task-notes` の `session-log.md` は Claude が書いたセッション記録で、**akira 本人が三人称で登場する**
-（「金田」「本人」「ユーザー」）。そのまま写すと、主語も評価軸も本人のものでなくなる。
+（「akira」「本人」「ユーザー」）。そのまま写すと、主語も評価軸も本人のものでなくなる。
 
 | ログの記述 | 日報での書き方 |
 | --- | --- |
-| 金田がリトライ不採用（案①）を決定 | リトライ機構は入れない方針を確定 |
-| claude の記述の誤りを金田が指摘 | コメント中の記述の誤りを 3 件見つけて訂正 |
+| akira がリトライ不採用（案①）を決定 | リトライ機構は入れない方針を確定 |
+| claude の記述の誤りを akira が指摘 | コメント中の記述の誤りを 3 件見つけて訂正 |
 | 本人が canary で再現 | canary を仕込んで再現させた |
 | 131 回目 — ① を D で決着し push | `pluck` → `cursor` 置換を採用して push |
 
@@ -46,7 +46,7 @@ akira の日報を書く。**事実は一次情報から取り、主観は本人
 
 ### 3. 分類してタスク名を短くする
 
-- **業務 / 個人** に分類する（`oripa-backend-infra` 等 = 業務、`task-notes` / 個人リポ = 個人）。
+- **業務 / 個人** に分類する（業務 org のリポ = 業務、`hskwakr/*`（`task-notes` 等）= 個人）。
 - タスク名はチケット番号 + 一言まで（「EXTORECA-2399 集計バッチの draft PR 提出」）。
 - ステータスは ✅ 完了 / 🔄 進行中 / ❌ 未着手。
 
