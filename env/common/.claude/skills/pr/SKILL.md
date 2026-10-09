@@ -17,7 +17,7 @@ PR 本文は次のテンプレートで書く:
 
 ## Merge Danger
 
-**Door:** <one-way か two-way か>
+**Door:** <two-way（戻せる）か one-way（戻せない）か>
 
 <任意: 説明>
 
