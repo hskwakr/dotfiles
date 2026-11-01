@@ -17,11 +17,11 @@ PR 本文は次のテンプレートで書く:
 
 ## Merge Danger
 
-**Door:** <two-way（戻せる）か one-way（戻せない）か>
+**戻せるか:** <two-way door（戻せる）か one-way door（戻せない）か>
 
 <任意: 説明>
 
-**Blast Radius:** <一語で>
+**影響範囲:** <一語で>
 
 <任意: マージで起こりうる影響>
 ```
@@ -161,4 +161,6 @@ function expandSkill(command: string): string {
 
 one-way door か two-way door かを書く。two-way door は引き返せるが、one-way door は引き返せない。ロールバックが安い PR ほどリスクは低い。破壊的な操作や、戻しにくい決定を含む変更は one-way door になる。
 
-blast radius は、この PR の変更が及びうる影響の範囲。あらゆる可能性を考える。例えば、レイアウトのずれ、利用側の破損、モバイルでのレスポンシブ表示など。
+見出し語は `**戻せるか:**` / `**影響範囲:**` と日本語で書く。値の `two-way door` / `one-way door` はそのまま使う。
+
+影響範囲は、この PR の変更が及びうる影響の範囲。あらゆる可能性を考える。例えば、レイアウトのずれ、利用側の破損、モバイルでのレスポンシブ表示など。
