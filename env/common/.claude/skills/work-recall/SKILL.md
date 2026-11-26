@@ -27,7 +27,8 @@ argument-hint: "[YYYY-MM-DD（省略時は前日）]"
 1. **ローカルリポジトリ（主経路）**: `~/ghq` 配下の全リポジトリ。ブランチ・push の有無・public/private を問わず当日の作業が残る。
 2. **PR の状態**: `gh pr list` / `gh pr view`。PR 番号・draft/open はローカル git から分からないので gh で確定させる。
 3. **作業ノートリポジトリ**: `~/ghq/github.com/hskwakr/task-notes`（draft PR で進む個人タスクノート。
-   `session-log.md` / `progress.md` / `decision-log.md` に "〜回目でやったこと" 形式の日次ログが溜まる）。
+   `session-log.md`（"〜回目でやったこと" 形式の日次ログ）/ `progress.json`（現在地・次の作業）/
+   `decision-log.jsonl`（決定）/ `tasks.json`（開いている作業項目）が溜まる。古いタスクは `.md` 版のこともある）。
    コミット件名だけでは「何が決まったか」が読めないので直読して補う。
 4. **GitHub 活動（補助）**: `mygh-day <YYYY-MM-DD>`（Commits / PRs / Issues を日付集計する自作シェル関数）。
    他マシンでの作業や、ローカルに clone していないリポの取りこぼしを拾う保険。
@@ -68,8 +69,11 @@ PR 番号と draft/open を**ノートの記述からではなく gh から取�
 ### 3. 作業ノートから「何が決まったか」を読む
 
 - `git log --all` で当日のノートコミットを列挙。
-- 各コミットの `session-log.md` / `progress.md` / `decision-log.md` を読む。
+- 各コミットの `session-log.md` / `decision-log.jsonl` を読む。
   差分だけなら `git show <hash> -- '*session-log.md'`、全文なら `git show <hash>:<path>`。
+- **その日の終わりの現在地**は、タスクごとに当日最後のコミット時点の `progress.json`（`next` / `waiting` / `notes`）と
+  `tasks.json`（開いている項目）を `git show <hash>:<path>` で読んで取る。session-log からの推測で「すべて完了」などと書かない。
+  `next` に挙がっている項目は中身（`tasks.json` の該当項目）まで読み、何が残っているかを一言で言える状態にする。
 
 ### 4. 構造化サマリに落とす
 
@@ -97,6 +101,7 @@ PR ブランチ上で作業する運用では、**マージされるまで当日
 ## <YYYY-MM-DD> やったこと
 
 ### <タスク名>（status: 完了 / 進行中）
+- 現在地 / 残り: <当日終わりの progress.json・tasks.json から。済んだこと・残っている項目（中身つき）・待ち>
 - やったこと: <一次情報から要約した前進内容>
 - 確定した事実: <ファイル名・行番号・決定事項・数値など>
 - 詰まった点 / 解決: <あれば>
