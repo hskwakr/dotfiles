@@ -19,7 +19,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf "$HOME_DIR" "$DOTFILES_DIR" "$BATS_TMPDIR/repo2"
+  rm -rf "$HOME_DIR" "$DOTFILES_DIR" "$BATS_TMPDIR/repo2" "$BATS_TMPDIR/repo-main"
 }
 
 @test "prepare_repo skips clone/pull when .git exists" {
@@ -37,4 +37,29 @@ teardown() {
   [ "$status" -eq 0 ]
   [ -d "$BACKUP_DIR" ]
   [ -d "$LOG_DIR" ]
+}
+
+@test "prepare_repo keeps a git worktree (where .git is a file) intact" {
+  local main_repo="$BATS_TMPDIR/repo-main"
+  git init -q "$main_repo"
+  git -C "$main_repo" -c user.name=test -c user.email=test@example.com \
+    commit -q --allow-empty -m init
+  git -C "$main_repo" worktree add -q --detach "$DOTFILES_DIR"
+  echo "work in progress" > "$DOTFILES_DIR/uncommitted.txt"
+  [ -f "$DOTFILES_DIR/.git" ]
+
+  # Fail instead of hitting the network if prepare_repo tries to re-clone
+  git() {
+    if [ "${1:-}" = "clone" ]; then
+      echo "unexpected git clone" >&2
+      return 1
+    fi
+    command git "$@"
+  }
+
+  run prepare_repo "$DOTFILES_DIR"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Already inside dotfiles repository"* ]] || false
+  [ -f "$DOTFILES_DIR/uncommitted.txt" ]
+  [ -f "$DOTFILES_DIR/.git" ]
 }

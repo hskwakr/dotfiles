@@ -288,7 +288,9 @@ detect_os() {
 prepare_repo() {
   local repo_dir=$1
 
-  if [ -d "$repo_dir/.git" ]; then
+  # Use -e, not -d: in a git worktree .git is a file ("gitdir: ..."), and
+  # misjudging it as a non-repo would rm -rf the worktree below.
+  if [ -e "$repo_dir/.git" ]; then
     log INFO "Already inside dotfiles repository, skipping clone/pull"
   elif [ -d "$repo_dir" ]; then
     log WARNING "$repo_dir exists but is not a git repository. Re-cloning."
